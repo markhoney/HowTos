@@ -1,0 +1,2234 @@
+<h2>Operating System</h2>
+
+<h3>Remote Management</h3>
+<h4>SSH</h4>
+<p class="command">sudo nano /etc/ssh/sshd_config</p>
+<p>At the bottom, add</p>
+<p class="command">UseDNS	no</p>
+<p>Then run</p>
+<p class="command">sudo service ssh restart</p>
+
+<h4>Webmin</h4>
+<p>Check for the latest version of the Ubuntu .deb package at:</p>
+<p><a href="http://www.webmin.com/download.html">http://www.webmin.com/download.html</a></p>
+<p class="command">wget http://downloads.sourceforge.net/project/webadmin/webmin/1.510/webmin_1.510-2_all.deb?use_mirror=transact</p>
+<p>sudo apt-get install libauthen-pam-perl libio-pty-perl apt-show-versions</p>
+<p>sudo dpkg -i webmin_1.510-2_all.deb</p>
+
+
+<h3>OS Updates</h3>
+<p class="command">sudo nano /etc/apt/sources.list</p>
+<p>Comment out all deb src and uncomment all deb lines</p>
+<p class="command">sudo apt-get update
+sudo apt-get upgrade</p>
+
+<p>If there are any packages kept back, such as a new kernel image, install them with</p>
+<p class="command">sudo apt-get dist-upgrade</p>
+<p>Install extra packages</p>
+<p class="command">sudo apt-get install screen
+sudo apt-get install build-essential linux-headers-generic</p>
+
+<h2>MythTV</h2>
+<h3>Mythbuntu Control Center</h3>
+System Updates, choose Launch in the background
+MySQL, Enable optimization & tweaks
+
+
+
+<h3>Startup</h3>
+<p>Applications, Settings, Session and Startup, Application Autostart tab, untick:</p>
+<ul>
+<li>MythTV Frontend</li>
+<li>XFCE Settings Helper</li>
+<li>Check for new hardware drivers</li>
+<li>Network Manager</li>
+<li>Update Notifier</li>
+<li>Bluetooth</li>
+</ul>
+
+
+
+
+
+<h3>New Kernel</h3>
+<p>Find the latest kernel from:</p>
+<p><a href="http://kernel.ubuntu.com/~kernel-ppa/mainline/">http://kernel.ubuntu.com/~kernel-ppa/mainline/</a></p>
+<p>2.6.33</p>
+<p class="command">wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.33.3-lucid/linux-headers-2.6.33-02063303_2.6.33-02063303_all.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.33.3-lucid/linux-headers-2.6.33-02063303-generic_2.6.33-02063303_amd64.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.33.3-lucid/linux-image-2.6.33-02063303-generic_2.6.33-02063303_amd64.deb
+#wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.33.3-lucid/linux-source-2.6.33_2.6.33-02063303_all.deb</p>
+<p class="command">sudo dpkg -i linux-headers-2.6.33-02063303_2.6.33-02063303_all.deb
+sudo dpkg -i linux-headers-2.6.33-02063303-generic_2.6.33-02063303_amd64.deb
+sudo dpkg -i linux-image-2.6.33-02063303-generic_2.6.33-02063303_amd64.deb
+#sudo dpkg -i linux-source-2.6.33_2.6.33-02063303_all.deb</p>
+<p>2.6.34</p>
+<p class="command">wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.34-lucid/linux-headers-2.6.34-020634_2.6.34-020634_all.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.34-lucid/linux-headers-2.6.34-020634-generic_2.6.34-020634_amd64.deb
+wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.34-lucid/linux-image-2.6.34-020634-generic_2.6.34-020634_amd64.deb
+#wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v2.6.34-lucid/linux-source-2.6.34_2.6.34-020634_all.deb</p>
+<p class="command">sudo dpkg -i linux-headers-2.6.34-020634_2.6.34-020634_all.deb
+sudo dpkg -i linux-headers-2.6.34-020634-generic_2.6.34-020634_amd64.deb
+sudo dpkg -i linux-image-2.6.34-020634-generic_2.6.34-020634_amd64.deb
+#sudo dpkg -i linux-source-2.6.34_2.6.34-020634_all.deb</p>
+
+
+<p class="command">nano /boot/grub/grub.cfg</p>
+
+<p class="command">sudo nano /etc/default/grub</p>
+<p class="command">GRUB_DEFAULT=0</p>
+
+<p class="command">sudo update-grub</p>
+
+
+
+<h2>Hardware</h2>
+
+<h3>TV Cards</h3>
+
+<p><a href="http://www.linuxtv.org/wiki/index.php/TeVii_S470">http://www.linuxtv.org/wiki/index.php/TeVii_S470</a></p>
+
+<p>Get Hauppauge HVR-4000, Hauppauge Nova-T 500, TeVii S464 and Tevii S470 Firmware:</p>
+
+<p class="command">sudo apt-get install linux-firmware-nonfree</p>
+
+<p class="command">mkdir ~/firmware</p>
+
+<p class="command">wget ftp://167.206.143.11/outgoing/Oxford/88x_2_119_25023_WHQL.zip</p>
+<p class="command">sudo apt-get install unzip</p>
+<p class="command">unzip -jo 88x_2_119_25023_WHQL.zip Driver88/hcw88bda.sys</p>
+<p class="command">dd if=hcw88bda.sys of=dvb-fe-cx24116-1.20.79.0.fw skip=81768 bs=1 count=32522</p>
+<p class="command">sudo rm /lib/firmware/dvb-fe-cx24116.fw.old</p>
+<p class="command">sudo mv /lib/firmware/dvb-fe-cx24116.fw /lib/firmware/dvb-fe-cx24116.fw.old</p>
+<p class="command">sudo cp dvb-fe-cx24116-1.20.79.0.fw /lib/firmware/dvb-fe-cx24116.fw</p>
+
+<p class="command">wget http://www.wintvcd.co.uk/drivers/88x_2_125_28070_WHQL.zip</p>
+<p class="command">sudo apt-get install unzip</p>
+<p class="command">unzip -jo 88x_2_125_28070_WHQL.zip Driver88/hcw88bda.sys</p>
+<p class="command">dd if=hcw88bda.sys of=dvb-fe-cx24116-1.26.90.0.fw skip=105768 bs=1 count=32674</p>
+<p class="command">sudo rm /lib/firmware/dvb-fe-cx24116.fw.old</p>
+<p class="command">sudo mv /lib/firmware/dvb-fe-cx24116.fw /lib/firmware/dvb-fe-cx24116.fw.old</p>
+<p class="command">sudo cp dvb-fe-cx24116-1.26.90.0.fw /lib/firmware/dvb-fe-cx24116.fw</p>
+
+
+<p class="command">wget http://www.wi-bw.tfh-wildau.de/~pboettch/home/files/dvb-usb-dib0700-1.20.fw</p>
+<p class="command">sudo rm /lib/firmware/dvb-usb-dib0700-1.20.fw.old</p>
+<p class="command">sudo mv /lib/firmware/dvb-usb-dib0700-1.20.fw /lib/firmware/dvb-usb-dib0700-1.20.fw.old</p>
+<p class="command">sudo cp dvb-usb-dib0700-1.20.fw /lib/firmware</p>
+
+<p class="command">wget http://tevii.com/tevii_ds3000.tar.gz</p>
+<p class="command">tar xzvf tevii_ds3000.tar.gz</p>
+<p class="command">sudo rm /lib/firmware/dvb-fe-ds3000.fw.old</p>
+<p class="command">sudo mv /lib/firmware/dvb-fe-ds3000.fw /lib/firmware/dvb-fe-ds3000.fw.old</p>
+<p class="command">sudo cp tevii_ds3000/dvb-fe-ds3000.fw /lib/firmware/</p>
+
+
+<p>Fix adapter order and card issues:</p>
+
+<p class="command">#sudo nano /etc/udev/rules.d/80-hauppaugecardorder.rules</p>
+<p class="command">#KERNEL=="dvb/adapter[0-9]*", ATTRS{device}=="0x8802", SYMLINK+="dvb/adapter2"</p>
+
+<p><a href="http://www.linuxtv.org/wiki/index.php/Hauppauge_WinTV-NOVA-T-500">http://www.linuxtv.org/wiki/index.php/Hauppauge_WinTV-NOVA-T-500</a></p>
+
+http://linuxtv.org/wiki/index.php/Hauppauge_WinTV-NOVA-T-500
+http://www.linuxtv.org/wiki/index.php/Hauppauge_WinTV-HVR-4000
+http://www.linuxtv.org/wiki/index.php/TeVii_S464
+http://www.linuxtv.org/wiki/index.php/TeVii_S470
+
+
+<p class="command">sudo nano /etc/modprobe.d/options.conf</p>
+
+
+wget http://www.tevii.com/dvb-fe-ds3000.rar
+unrar e dvb-fe-ds3000.rar
+sudo cp dvb-fe-ds3000.fw /lib/firmware
+
+mkdir HVR-4000
+cd HVR-4000
+wget http://www.wintvcd.co.uk/drivers/88x_2_126_28225_WHQL.zip
+unzip 88x_2_126_28225_WHQL.zip
+dd if=Driver88/hcw88bda.sys of=dvb-fe-cx24116.fw bs=1 skip=105768 count=32290
+cmp dvb-fe-cx24116.fw /lib/firmware/dvb-fe-cx24116.fw
+sudo mv /lib/firmware/dvb-fe-cx24116.fw /lib/firmware/dvb-fe-cx24116.fw.old
+sudo cp dvb-fe-cx24116.fw /lib/firmware
+
+wget http://www.wi-bw.tfh-wildau.de/~pboettch/home/files/dvb-usb-dib0700-1.20.fw
+cmp dvb-usb-dib0700-1.20.fw /lib/firmware/dvb-usb-dib0700-1.20.fw
+
+<p class="command">options usbcore autosuspend=-1
+options dvb_usb disable-rc-polling=1
+options dvb_usb_dib0700 force_lna_activation=1
+options dvb_usb_dib0700 adapter_nr=0,1
+options cx23885 adapter_nr=2
+options cx88_dvb adapter_nr=3</p>
+
+modinfo dvb_usb
+modinfo dvb_usb_dib0700
+modinfo cx88_dvb
+modinfo cx23885
+
+modinfo dvb_usb_dib0700 | grep -i adapter_nr
+modinfo cx88_dvb | grep -i adapter_nr
+modinfo cx23885 | grep -i adapter_nr
+
+
+options usbcore autosuspend=-1
+options dvb_usb disable-rc-polling=1
+options dvb_usb_dib0700 force_lna_activation=1
+#options dvb_usb_dib0700 adapter_nr=0,1
+#options cx88_dvb adapter_nr=2,3
+#options cx23885 adapter_nr=4
+
+cx8800
+
+cat /sys/module/usbcore/parameters/autosuspend
+cat /sys/module/dvb_usb/parameters/disable-rc-polling
+cat /sys/module/dvb_usb_dib0700/parameters/force_lna_activation
+cat /sys/module/dvb_usb_dib0700/parameters/adapter_nr
+cat /sys/module/cx88_dvb/parameters/adapter_nr
+cat /sys/module/cx23885/parameters/adapter_nr
+
+
+sudo lspci -v
+sudo lsusb -v
+
+dmesg | grep -i "registering adapter"
+
+UDev
+====
+
+udevadm info -a -p $(udevadm info -q path -n /dev/dvb/adapter0/dvr0) > adapter0
+udevadm info -a -p $(udevadm info -q path -n /dev/dvb/adapter1/dvr0) > adapter1
+diff adapter0 adapter1
+KERNEL=="dvb0.dvr0"
+KERNEL=="dvb1.dvr0"
+udevadm info -a -p $(udevadm info -q path -n /dev/dvb/adapter2/dvr0)
+udevadm info -a -p $(udevadm info -q path -n /dev/dvb/adapter3/dvr0)
+udevadm info -a -p $(udevadm info -q path -n /dev/dvb/adapter4/dvr0)
+
+Adapter2
+    ATTRS{subsystem_vendor}=="0xd464"
+    ATTRS{subsystem_device}=="0x9022"
+Adapter3
+    ATTRS{subsystem_vendor}=="0xd470"
+    ATTRS{subsystem_device}=="0x9022"
+Adapter4
+    ATTRS{subsystem_vendor}=="0x0070"
+    ATTRS{subsystem_device}=="0x6902"
+Adapter4-1
+    ATTRS{subsystem_vendor}=="0x0070"
+    ATTRS{subsystem_device}=="0x6902"
+
+
+
+
+    ATTRS{manufacturer}=="Hauppauge"
+    ATTRS{product}=="WinTV Nova-DT"
+    ATTRS{serial}=="4031495196"
+
+	ATTRS{vendor}=="0x14f1"
+    ATTRS{device}=="0x8802"
+    ATTRS{subsystem_vendor}=="0x0070"
+    ATTRS{subsystem_device}=="0x6902"
+
+	ATTRS{vendor}=="0x14f1"
+    ATTRS{device}=="0x8802"
+    ATTRS{subsystem_vendor}=="0xd464"
+    ATTRS{subsystem_device}=="0x9022"
+ 
+	ATTRS{vendor}=="0x14f1"
+    ATTRS{device}=="0x8852"
+    ATTRS{subsystem_vendor}=="0xd470"
+    ATTRS{subsystem_device}=="0x9022"
+	
+	
+
+ 
+
+sudo nano /etc/udev/rules.d/10-dvb.rules
+
+SUBSYSTEM=="dvb", ATTRS{serial}=="4031495196", ENV{novat500}!="two", ENV{novat500}="two", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter0/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{serial}=="4031495196", ENV{novat500}=="two", ENV{novat500}="one", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter1/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{subsystem_vendor}=="0x0070", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter2/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{subsystem_vendor}=="0xd464", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter3/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{subsystem_vendor}=="0xd470", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter4/%%s $${K#*.}'", SYMLINK+="%c"
+
+SUBSYSTEM=="dvb", ATTRS{serial}=="4031495196", ENV{novat500}!="two", ENV{novat500}="two", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter1/%%s $${K#*.}'", NAME="%c"
+SUBSYSTEM=="dvb", ATTRS{serial}=="4031495196", ENV{novat500}=="two", ENV{novat500}="one", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter2/%%s $${K#*.}'", NAME="%c"
+SUBSYSTEM=="dvb", ATTRS{subsystem_vendor}=="0x0070", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter3/%%s $${K#*.}'", NAME="%c"
+SUBSYSTEM=="dvb", ATTRS{subsystem_vendor}=="0xd464", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter4/%%s $${K#*.}'", NAME="%c"
+SUBSYSTEM=="dvb", ATTRS{subsystem_vendor}=="0xd470", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter5/%%s $${K#*.}'", NAME="%c"
+
+
+SUBSYSTEM=="dvb", ATTRS{manufacturer}=="Hauppauge", ATTRS{product}=="WinTV Nova-DT", ATTRS{serial}=="4031495196", ENV{novat500}!="two", ENV{novat500}="two", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter0/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{manufacturer}=="Hauppauge", ATTRS{product}=="WinTV Nova-DT", ATTRS{serial}=="4031495196", ENV{novat500}=="two", ENV{novat500}="one", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter1/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{vendor}=="0x14f1", ATTRS{device}=="0x8802", ATTRS{subsystem_vendor}=="0x0070", ATTRS{subsystem_device}=="0x6902", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter2/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{vendor}=="0x14f1", ATTRS{device}=="0x8802", ATTRS{subsystem_vendor}=="0xd464", ATTRS{subsystem_device}=="0x9022", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter3/%%s $${K#*.}'", SYMLINK+="%c"
+SUBSYSTEM=="dvb", ATTRS{vendor}=="0x14f1", ATTRS{device}=="0x8852", ATTRS{subsystem_vendor}=="0xd470", ATTRS{subsystem_device}=="0x9022", PROGRAM="/bin/sh -c 'K=%k; K=$${K#dvb}; printf dvb/adapter4/%%s $${K#*.}'", SYMLINK+="%c"
+
+
+
+
+<p>#Halt the machine and turn back on (to ensure new firmware is loaded)
+
+<p class="command">dmesg | grep -i dvb</p>
+<p class="command">ls /dev/dvb/*</p>
+
+
+
+<h3>Monitoring</h3>
+<p>To install useful utilities for monitoring hardware, run</p>
+<p class="command">sudo apt-get install sysstat htop iotop ntop</p>
+<p>Some useful commands are:</p>
+<ul>
+<li>top</li>
+<li>vmstat 1</li>
+<li>free</li>
+<li>df -h</li>
+<li>iostat 1</li>
+<li>sar 1 10</li>
+<li>mpstat -P ALL</li>
+<li>ntop</li>
+<li>htop</li>
+</ul>
+
+
+
+
+
+<h3>Temperatures/fans/etc</h3>
+
+<p><a href="http://ubuntuforums.org/showthread.php?t=2780">http://ubuntuforums.org/showthread.php?t=2780</a></p>
+
+<p class="command">sudo apt-get install lm-sensors
+sudo sensors-detect</p>
+
+<p>Hit enter lots, say yes to the last question regarding adding the module automagically</p>
+
+<p>Reboot or modprobe the suggested module:</p>
+
+	sudo modprobe w83627ehf
+
+	sensors
+
+	sudo apt-get install powernowd
+
+	sudo nano /etc/default/powernowd
+
+	OPTIONS="-q"
+
+sudo service powernowd restart
+
+dmesg | grep powernowd
+
+sudo apt-get install hddtemp
+
+sudo hddtemp /dev/sd?
+
+
+
+
+
+
+Control Service Startup
+-----------------------
+
+sudo apt-get install rcconf sysv-rc-conf
+
+sudo rcconf
+
+or
+
+sudo update-rc.d sascd disable
+
+sudo mv /etc/init/mythtv-backend.conf /etc/init/mythtv-backend.conf.old
+
+
+
+
+
+
+CAM Install
+===========
+
+Install NewCS
+-------------
+
+cd ~
+http://dolot.kipdola.com/wiki/Install_Newcs
+
+Use the x86_64 binary
+
+wget http://dolot.kipdola.com/uploads/newcs-1_67RC1.zip
+or
+wget http://www.skystar.org/arsiv/cardsharing/newcs/newcs-1_67RC1.zip
+
+unzip newcs-1_67RC1.zip
+
+sudo cp newcs-1.67_RC1/bin/newcs.x86_64 /usr/bin
+
+sudo nano /etc/newcs.xml
+
+<?xml version="1.0"?>
+<newCSconfig>
+	<readers name="Standard Phoenix on PC">
+		<device>
+			<name>JayCar MkII Phoenix</name>
+			<type>phoenix</type>
+			<mhz>358</mhz>
+			<node>/dev/ttyS0</node>
+			<parity>odd</parity>
+			<reset>normal</reset>
+			<export>Yes</export>
+			<enabled>Yes</enabled>
+			<carddetect>No</carddetect>
+			<newcamd_port>15000</newcamd_port>
+			<pincode>1111</pincode>
+			<priority>round</priority>
+			<boxkey>0895C312</boxkey>
+			<blockc0>No</blockc0>
+			<blockga>No</blockga>
+			<blockua>No</blockua>
+			<blocksa>No</blocksa>
+			<crypto-special>No</crypto-special>
+			<PTShandshake>No</PTShandshake>
+			<Seca-PPV>No</Seca-PPV>
+		</device>
+	</readers>
+	<httpd>
+		<server>
+			<port>15080</port>
+			<enabled>yes</enabled>
+		</server>
+		<user>
+			<name>newcs</name>
+			<password>newcs</password>
+			<accesslevel>admin</accesslevel>
+		</user>
+	</httpd>
+	<cache>
+		<emm>20</emm>
+		<ecm>-1</ecm>
+	</cache>
+	<debug>
+		<password>password</password>
+		<mode>simple</mode>
+		<level>normal</level>
+		<type>all</type>
+		<logfile>/var/log/newcs.log</logfile>
+		<output>console,file,tcp</output>
+		<tcp_port>15001</tcp_port>
+		<tcp_options>normal,init</tcp_options>
+	</debug>
+	<newcamdserver>
+		<enabled>Yes</enabled>
+		<name>newcs</name>
+		<deskey>01 02 03 04 05 06 07 08 09 10 11 12 13 14</deskey>
+		<user>
+			<name>Sky0</name>
+			<password>password</password>
+			<hostname>all</hostname>
+			<port>15002</port>
+			<au>on</au>
+			<sidoverride>off</sidoverride>
+			<spider>No</spider>
+               <cardlevel>1</cardlevel>
+               <rate>0</rate>
+		</user>
+	</newcamdserver>
+	<radegastserver>
+		<enabled>Yes</enabled>
+		<port>15005</port>
+		<allow>
+			<hostname>all</hostname>
+			<hostname>tv</hostname>
+			<hostname>localhost</hostname>
+			<hostname>127.0.0.1</hostname>
+			<hostname>172.22.2.11</hostname>
+		</allow>
+	</radegastserver>
+</newCSconfig>
+
+
+sudo nano /etc/init.d/newcs
+
+NCSNAME=newcs.x86_64
+NCSUSER=mythtv
+
+sudo touch /var/log/newcs.log
+sudo chown mythtv:mythtv /var/log/newcs.log
+
+sudo chmod +x /etc/init.d/newcs
+sudo chmod 755 /etc/init.d/newcs
+sudo update-rc.d newcs defaults 19
+
+
+To confirm that card is working, insert the card into the reader
+
+sudo service newcs restart
+cat /var/log/newcs.log
+
+[ 12:36:54 ] [ ATR ] Historical bytes: 3 [B0] [10] i [FF] J P p [00] [00] N Z [01] [00] [00]
+
+
+telnet 127.0.0.1 15000
+telnet 127.0.0.1 15005
+
+
+
+For admin, visit:
+
+http://tv:15080/
+
+newcs
+newcs
+
+
+Install open-sasc-ng
+--------------------
+
+http://dolot.kipdola.com/wiki/Install_SASC-NG
+
+sudo apt-get install subversion libssl-dev gettext mercurial build-essential
+cd /usr/local/src
+sudo hg clone http://85.17.209.13:6100/sc
+sudo chmod +x /usr/local/src/sc/contrib/sasc-ng/configure
+sudo chmod +x /usr/local/src/sc/contrib/sasc-ng/dvbloopback/module/config_dvb.pl
+cd /usr/local/src/sc/contrib/sasc-ng
+
+#sudo ./configure --dvb-dir=/usr/local/src/v4l-dvb
+or, if no dvb-v4l
+sudo ./configure
+
+
+sudo make
+sudo cp sasc-ng /usr/bin
+
+
+sudo make module
+
+sudo mkdir /lib/modules/`uname -r`/misc
+sudo /usr/bin/install dvbloopback.ko /lib/modules/`uname -r`/misc/
+sudo depmod
+
+sudo modprobe dvbloopback
+
+lsmod | grep dvbloopback
+
+If the module isn't loaded, reboot and try again
+
+
+#sudo nano /etc/modules
+#dvbloopback
+(breaks adapter order!)
+
+List adapters and numbers:
+sasc-ng -i
+
+We're looking for:
+Conexant CX24116/CX24118
+
+
+sudo mkdir /etc/camfiles
+sudo nano /etc/camfiles/cardclient.conf
+
+#newcamd:127.0.0.1:15000:0/096a/ffff:Sky0:password:0102030405060708091011121314
+radegast:127.0.0.1:15005:0/096a/ffff
+
+#sudo touch /etc/camfiles/SoftCam.Key
+#sudo touch /etc/camfiles/smartcard.conf
+
+#sudo cp /usr/local/src/open-sasc-ng/sc_files/* /etc/camfiles/
+
+
+sudo nano /usr/local/bin/runsasc
+
+DRIVERDIR="/usr/local/src/open-sasc-ng"
+CAMDIR="/etc/camfiles"
+ADAPTERS="1"
+OPTIONS="-j 2:4 -j 3:5 --cam-budget --sid-allpid --sid-nocache --cam-dir"
+
+sudo chmod 755 /usr/local/bin/runsasc
+sudo chmod +x /usr/local/bin/runsasc
+
+sudo nano /etc/init.d/sascd
+
+sudo chmod +x /etc/init.d/sascd
+sudo update-rc.d sascd defaults 21
+
+sudo nano /etc/default/sascc
+
+# /etc/default/sascc
+# Default SASC-NG startup config
+
+# Change to 1 to enable sasc-ng's init-script
+ENABLED=1
+
+# DVBLoopback Device creation timeout (in seconds)
+TIMEOUT=60
+
+
+ls /dev/dvb/*
+
+
+
+
+
+
+
+
+
+Reboot
+
+
+
+
+
+Install Sasc-NG
+---------------
+
+http://dolot.kipdola.com/wiki/Install_SASC-NG
+
+cd /usr/local/src
+sudo hg clone http://85.17.209.13:6100/sc
+
+sudo chmod +x /usr/local/src/sc/contrib/sasc-ng/configure
+sudo chmod +x /usr/local/src/sc/contrib/sasc-ng/dvbloopback/module/config_dvb.pl
+
+cd /usr/local/src/sc/contrib/sasc-ng/
+
+sudo make
+sudo make module
+
+sudo mkdir /lib/modules/`uname -r`/misc
+sudo /usr/bin/install dvbloopback.ko /lib/modules/`uname -r`/misc/
+sudo depmod
+
+sudo modprobe dvbloopback
+
+lsmod | grep dvbloopback
+
+
+sudo touch /var/log/sasc-ng.log
+sudo chown mythtv:mythtv /var/log/sasc-ng.log
+
+
+
+
+
+
+http://dolot.kipdola.com/wiki/Install_S2API
+
+
+
+
+
+
+
+<h4>On Kernel Upgrade</h4>
+
+sudo reboot
+
+cd /usr/local/src/sc/contrib/sasc-ng/
+
+sudo make clean
+sudo make
+sudo make module
+
+sudo mkdir /lib/modules/`uname -r`/misc
+sudo /usr/bin/install dvbloopback.ko /lib/modules/`uname -r`/misc/
+sudo depmod
+
+sudo modprobe dvbloopback
+
+lsmod | grep dvbloopback
+
+
+
+
+#Install v4l-dvb
+#---------------
+
+#cd /usr/local/src
+
+#sudo apt-get install mercurial
+#sudo hg clone http://linuxtv.org/hg/v4l-dvb
+#cd v4l-dvb
+#sudo make
+#(will fail)
+
+#sudo nano v4l/.config
+#(12 pagedowns in...)
+
+#-CONFIG_DVB_FIREDTV=m
+#+CONFIG_DVB_FIREDTV=n
+
+#-CONFIG_VIDEO_IR=m
+#+CONFIG_VIDEO_IR=n
+
+or
+
+sudo make config
+
+
+#sudo make
+#sudo make install
+
+
+
+
+
+Debug
+-----
+
+screen
+
+sudo service mythtv-backend stop
+sudo /etc/init.d/sascd stop
+
+lsmod | grep dvbloopback
+sudo modprobe dvbloopback
+lsmod | grep dvbloopback
+
+sudo LD_LIBRARY_PATH=/usr/local/src/open-sasc-ng/sc/PLUGINS/lib/ /usr/bin/sasc-ng -j 2:3 --cam-budget --sid-allpid --sid-nocache --cam-dir /etc/camfiles --debug 0xffffff
+
+For debug add: --debug 0xffffff
+For logging to file, add: --log /var/log/sasc-ng.log
+
+sudo scan -a 3 -f 0 -d 0 -l 10750 /usr/share/dvb/dvb-s/OptusD1-160E > /dev/null
+
+szap -a 3 -f 0 -d 0 -l 10750 -r "the BOX"
+
+cat /var/log/newcs.log
+
+Looking for:
+
+[ 13:33:57 ] [ Newcamd ] ECM -> Sky0 (OK) [CAID 0000] [Prov 00000000] [SID 03E9]
+
+And in the sasc-ng window we want:
+
+Nov 20 13:36:04.912 frontend: Got command 71 (size: 20)
+Nov 20 13:36:04.936 frontend: ioctl on (10) returned: 0
+Nov 20 13:36:04.936 : FE_READ_SIGNAL_STRENGTH(10): 57792
+
+And the zap window:
+
+status 1f | signal e1c0 | snr d199 | ber 00000000 | unc 00000000 | FE_HAS_LOCK
+
+
+sudo /etc/init.d/sascd start
+sudo service mythtv-backend start
+
+
+
+
+
+
+
+OSCam
+-----
+
+
+http://www.lonelycoder.com/redmine/projects/tvheadend/wiki/Tvheadend_oscam_ziggo
+
+sudo apt-add-repository ppa:oscam/ppa
+
+sudo apt-get update
+
+sudo apt-get install oscam-svn
+
+
+sudo apt-get install dialog
+git clone https://github.com/gfto/oscam.git
+cd oscam
+make config
+make
+sudo cp Distribution/oscam-1.20-unstable_svn0-i686-linux-gnu /usr/bin/oscam
+sudo mkdir /etc/oscam
+sudo mkdir /var/log/oscam
+
+sudo nano /etc/oscam/oscam.conf
+
+[global]
+usrfile     = /var/log/oscam/oscamuser.log
+logfile     = /var/log/oscam/oscam.log
+cwlogdir    = /var/log/oscam/cw
+nice        = -1
+
+[monitor]
+port        = 988
+aulow       = 120
+monlevel    = 1
+
+[newcamd]
+port        = 15000@096A:000068
+key         = 0102030405060708091011121314
+
+[webif]
+httpport    = 8989
+httprefresh = 5
+httpallowed = 127.0.0.1,172.22.2.1-172.22.2.254
+
+
+
+
+sudo nano /etc/oscam/oscam.server
+
+[reader]
+label      = Phoenix
+protocol   = mouse
+mhz        = 358
+device     = /dev/ttyS0
+group      = 1
+audisabled = 0
+
+
+
+sudo nano /etc/oscam/oscam.user
+
+[account]
+user  = hts
+pwd   = hts
+group = 1
+caid  = 096A
+au    = Phoenix
+
+
+sudo oscam -c /etc/oscam
+
+sudo nano /etc/init/oscam
+
+# OSCAM service
+description     "Open Source Conditional Access Module"
+
+start on (local-filesystems and started udev-finish)
+stop on runlevel [016]
+
+#expect fork
+respawn
+respawn limit 2 3600
+
+script
+        oscam -c /etc/oscam
+end script
+
+
+
+Channel Tuning
+==============
+
+Signal Strength
+---------------
+
+Terrestrial:
+
+tzap -a 1 -f 1 -d 0 -r "Freeview | HD"
+tzap -a 2 -f 0 -d 0 -r "Freeview | HD"
+tzap -a 3 -f 0 -d 0 -r "Freeview | HD"
+
+status 1f | signal 3c26 | snr 0000 | ber 00000000 | unc 00000000 | FE_HAS_LOCK
+
+
+szap -a 0 -f 0 -d 0 -l 10750 -r "the BOX"
+szap -a 1 -f 0 -d 0 -l 10750 -r "the BOX"
+
+
+status 1f | signal e1c0 | snr d199 | ber 00000000 | unc 00000000 | FE_HAS_LOCK
+
+
+
+
+
+Frequency Files
+---------------
+
+http://www.freeviewshop.co.nz/digital-terrestrial-i-8.html
+
+sudo nano /usr/share/dvb/dvb-s/OptusD1-160E
+
+
+# Optus D1 satellite 160E
+
+# freq pol sr fec
+S 12331000 H 22500000 2/3
+S 12358000 H 22500000 2/3
+S 12394000 H 22500000 3/4
+S 12421000 H 22500000 3/4
+S 12456000 H 22500000 3/4
+S 12483000 H 22500000 3/4
+S 12519000 V 22500000 3/4
+S 12519000 H 22500000 3/4
+S 12546000 V 22500000 3/4
+S 12546000 H 22500000 3/4
+S 12556000 V 22500000 3/4
+S 12581000 H 22500000 3/4
+S 12608000 H 22500000 3/4
+S 12637000 V 22500000 3/4
+S 12644000 H 22500000 3/4
+S 12648000 V 12600000 5/6
+S 12661000 V 7200000  3/4
+S 12670000 V 7200000  3/4
+S 12671000 H 22500000 3/4
+S 12679000 V 7200000  3/4
+S 12707000 H 22500000 3/4
+S 12734000 H 22500000 3/4
+
+
+http://www.satbeams.com/channels?norad=29495
+http://www.lyngsat.com/Optus-D1.html
+http://www.lyngsat.com/packages/skynz.html
+http://www.lyngsat.com/freetv/New-Zealand.html
+
+
+sudo nano /usr/share/dvb/dvb-s/OptusD1-160E
+sudo nano /usr/local/share/tvheadend/data/dvb-scan/dvb-s/
+
+# Optus D1 satellite 160.0E
+# freq pol sr fec
+S 12268000 H 22500000 2/3
+S 12295000 H 22500000 3/4
+S 12331000 H 22500000 2/3
+S 12358000 H 22500000 2/3
+S 12394000 H 22500000 3/4
+S 12407000 V 30000000 5/6
+S 12421000 H 22500000 3/4
+S 12456000 H 22500000 3/4
+S 12483000 H 22500000 3/4
+S 12519000 H 22500000 3/4
+S 12546000 H 22500000 3/4
+S 12581000 H 22500000 3/4
+S 12608000 H 22500000 3/4
+S 12644000 H 22500000 3/4
+S 12671000 H 22500000 3/4
+S 12707000 H 22500000 3/4
+S 12734000 H 22500000 3/4
+
+
+
+
+
+nano ~/.szap/OptusD1-160E-Freeview
+
+# Optus D1 satellite 160E
+
+# freq pol sr fec
+S 12456000 H 22500000 3/4
+S 12483000 H 22500000 3/4
+
+
+nano ~/.szap/OptusD1-160E-SkyHD
+
+# Optus D1 satellite 160E
+
+# freq pol sr fec
+S 12267000 H 22500000 2/3
+S 12331000 H 22500000 2/3
+S 12358000 H 22500000 2/3
+
+
+nano ~/.szap/OptusD1-160E-Sky
+
+# Optus D1 satellite 160E
+
+# freq pol sr fec
+S 12295000 H 22500000 3/4
+S 12394000 H 22500000 3/4
+S 12421000 H 22500000 3/4
+S 12519000 H 22500000 3/4
+S 12546000 H 22500000 3/4
+S 12581000 H 22500000 3/4
+S 12608000 H 22500000 3/4
+S 12644000 H 22500000 3/4
+S 12671000 H 22500000 3/4
+S 12707000 H 22500000 3/4
+S 12734000 H 22500000 3/4
+
+
+scan -a 3 -l 11300 ~/.szap/OptusD1-160E-Freeview
+scan -a 3 -l 11300 ~/.szap/OptusD1-160E-SkyHD
+scan -a 3 -l 11300 ~/.szap/OptusD1-160E-Sky
+
+dvbscan -adapter 3 -frontend 0 -demux 0 -secid DBS -out channels ~/.szap/OptusD1-160E-Sky > /dev/null
+w_scan -fs -cNZ -s
+
+
+
+
+
+sudo nano /usr/share/dvb/dvb-t/nz-BaxtersKnob
+sudo nano /usr/local/share/tvheadend/data/dvb-scan/dvb-t/nz-BaxtersKnob
+
+# Baxters Knob, Wellington, NZ
+
+# T freq bw fec_hi fec_lo mod transmission-mode guard-interval hierarchy
+T 570000000 8MHz 3/4 3/4 QAM64 8k 1/16 NONE
+T 586000000 8MHz 3/4 3/4 QAM64 8k 1/16 NONE
+T 602000000 8MHz 3/4 3/4 QAM64 8k 1/16 NONE
+
+sudo apt-get install dvbstream
+sudo apt-get install mplayer smplayer
+
+scan -a 1 /usr/share/dvb/dvb-t/nz-BaxtersKnob > ~/.tzap/channels.conf
+scan -a 3 -l 11300 /usr/share/dvb/dvb-s/OptusD1-160E > ~/.szap/channels.conf
+
+
+sudo service mythtv-backend stop
+
+mkdir ~/.tzap
+mkdir ~/.szap
+
+scan -a 1 -f 0 -d 0 /usr/share/dvb/dvb-t/nz-BaxtersKnob > ~/.tzap/channels.conf
+scan -a 3 -f 0 -d 0 /usr/share/dvb/dvb-t/nz-Kaukau > /dev/null
+scan -a 1 -f 1 -d 1 /usr/share/dvb/dvb-t/nz-Kaukau > /dev/null
+
+scan -a 0 -f 0 -d 0 -l 10750 /usr/share/dvb/dvb-s/OptusD1-160E > ~/.szap/channels.conf
+scan -a 1 -f 0 -d 0 -l 10750 /usr/share/dvb/dvb-s/OptusD1-160E > /dev/null
+
+#scan -a 2 -f 0 -d 0 -l 10750,10750,22000 /usr/share/dvb/dvb-s/OptusC1-156E > channels.conf
+
+
+#scan -a 3 -f 0 -d 0 -l 10750 /usr/share/dvb/dvb-s/OptusD1-160E > /dev/null
+#dvbscan -adapter 3 -frontend 0 -demux 0 -secid ENHANCED -out channels /usr/share/dvb/dvb-s/OptusD1-160E > /dev/null
+
+scan -a 3 -l 11300 /usr/share/dvb/dvb-s/OptusD1-160E > /dev/null
+
+cp ~/.szap/channels.conf ~/.mplayer/
+
+tzap -a 2 -f 1 -d 1 "Freeview | HD"
+
+szap -a 2 -f 0 -d 0 -l 10750 -i
+szap -a 3 -f 0 -d 0 -l 10750 -r "the BOX"
+
+
+cat .szap/channels.conf | grep BOX
+the BOX:12608:h:0:22500:1001:1101:1001
+
+
+dvbstream -c 3 -f 1183000 -s 22500 -p h -o 520 658 | mplayer -
+
+
+mplayer -v dvb://4@"the BOX"
+
+mplayer -v dvb://1@"Freeview | HD"
+
+szap -a 3 -f 0 -d 0 -l 10750 -r "the BOX"
+mplayer -v /dev/dvb/adapter3/dvr0
+
+tzap -a 0 -f 0 -d 0 -r "Freeview | HD"
+mplayer -v /dev/dvb/adapter0/dvr0
+
+
+sudo service mythtv-backend start
+
+
+
+MythTV
+
+
+Folders
+
+sudo nano /etc/fstab
+
+/dev/sda3	 /mnt/tv     xfs     defaults        0	2
+
+
+
+sudo nano /etc/exports
+
+/mnt/tv/tvheadend	*(ro,async,no_root_squash,no_subtree_check)
+
+sudo service nfs-kernel-server restart
+
+
+
+
+sudo mv /var/lib/mythtv/* /mnt/mythtv/
+
+sudo rmdir /var/lib/mythtv
+
+sudo ln -s /mnt/tv/mythtv /var/lib/mythtv
+
+#sudo rmdir /var/lib/mythtv/coverart
+#sudo rmdir /var/lib/mythtv/screenshots
+#sudo rmdir /var/lib/mythtv/banners
+#sudo rmdir /var/lib/mythtv/fanart
+
+#sudo ln -s /var/lib/mythtv/coverart
+#sudo ln -s /var/lib/mythtv/screenshots
+#sudo ln -s /var/lib/mythtv/banners
+#sudo ln -s /var/lib/mythtv/fanart
+
+sudo chmod -x /var/lib/mythtv/coverart/*
+
+sudo chown -R mythtv:mythtv /var/lib/mythtv
+sudo chown -R mythtv:mythtv /mnt/mythtv
+
+
+UPDATE videometadata SET fanart=CONCAT('/var/lib/mythtv/fanart/', SUBSTRING_INDEX(SUBSTRING_INDEX(filename, '/', -1), '.', 1), '.jpg'), coverfile=CONCAT('/var/lib/mythtv/coverart/', SUBSTRING_INDEX(SUBSTRING_INDEX(filename, '/', -1), '.', 1), '.jpg') WHERE filename LIKE '/mnt/media/Videos/Movies/%';
+
+#Need to remove " - part1" / " - part2", etc
+
+
+
+MythTV-Backend
+--------------
+
+IP Address: 172.22.2.11 (Local Backend & Master Backend)
+Security Pin: 0000
+
+TV format: PAL-60
+VBI format: PAL Teletext
+Channel frequency table: newzealand
+
+
+Capture Cards:
+
+DVB DTV x 4
+
+1. /dev/dvb/adapter0/frontend0
+2. /dev/dvb/adapter1/frontend0
+#3. /dev/dvb/adapter2/frontend0 *
+#4. /dev/dvb/adapter3/frontend1
+#5. /dev/dvb/adapter3/frontend0 *
+6. /dev/dvb/adapter4/frontend0 *
+7. /dev/dvb/adapter5/frontend0 *
+
+* DVB-S2, DiSEqC, LNB:
+LNB Preset: Custom
+LNB Type: Standard (Voltage)
+LNB LOF Low (MHz): 10750
+
+For all
+Recording Options, Max recordings set to 5
+
+#http://www.mythtv.org/wiki/Hauppauge_HVR-4000
+#For /dev/dvb/adapter2/* and /dev/dvb/adapter3/*
+#Tick Open DVB card on demand
+
+
+Video Sources:
+
+Freeview Terrestrial:
+Listings grabber: No Grabber
+Channel frequency table: default
+
+Freeview Satellite:
+Listings grabber: No Grabber
+Channel frequency table: default
+
+Sky Satellite:
+Listings grabber: No Grabber
+Channel frequency table: default
+
+or
+
+Terrestrial:
+Listings grabber: No Grabber
+Channel frequency table: default
+
+Satellite:
+Listings grabber: No Grabber
+Channel frequency table: default
+
+
+
+Input Connections:
+
+1. /dev/dvb/adapter0/frontend0 -> Freeview Terrestrial
+2. /dev/dvb/adapter1/frontend0 -> Freeview Terrestrial
+#3. /dev/dvb/adapter2/frontend1 -> Freeview Terrestrial
+#4. /dev/dvb/adapter2/frontend0 -> Freeview Satellite
+5. /dev/dvb/adapter3/frontend0 -> Sky Satellite
+
+or
+
+5. /dev/dvb/adapter3/frontend0 -> Satellite
+
+
+Create a New Input Group
+Name: HVR
+
+/dev/dvb/adapter2/* and /dev/dvb/adapter3/*
+
+Scan:
+
+Terrestrial -> /home/administrator/.tzap/channels.conf
+Satellite -> /home/administrator/.szap/channels.conf
+
+Scan All
+
+
+
+For satellite scan, instead of channels.conf you can scan a transponder:
+
+12734000
+#12456000
+
+22500000
+
+Check status:
+
+http://tv:6544/
+
+
+
+
+
+MythWeb
+-------
+
+Secure:
+
+Use MythBuntu Control Centre
+
+or
+
+sudo htpasswd -c /etc/apache2/httpd-passwords mythweb
+sudo chown www-data:www-data /etc/apache2/httpd-passwords
+
+sudo nano /var/www/mythweb/.htaccess
+
+AuthType           Basic
+AuthName           "mythweb"
+AuthUserFile       /etc/apache2/httpd-passwords
+Require            valid-user
+BrowserMatch       "MSIE"      AuthDigestEnableQueryStringHack=On
+
+Allow from 172.22.2.110
+Satisfy any
+
+
+
+Visit MythWeb:
+
+http://tv/
+http://172.22.2.11/
+
+Edit Channels (Settings, TV, Channel Info), change channels with high numbers to match the low numbers (and ensure callsigns are identical).
+
+
+
+
+
+
+
+
+
+Channels
+--------
+
+Create Update SQL for XMLTV
+
+#UPDATE videometadata SET coverfile="",fanart="" WHERE filename="/mnt/media/Videos/Movies/2003/101 Dalmatians II - Patch's London Adventure (2003).avi"
+
+wget -N -P ~/.tzap/ "http://download.xmltv.honeychurch.org/archive=none&icons=large&links=remote&provider=freeview/base/c4/central/concert/ctv8/maori/national/plmnt/prime/tv1/tv2/tv3/tv3plus1/tvnz6/tvnz7/TVGuide.xml"
+wget -N -P ~/.szap/ "http://download.xmltv.honeychurch.org/archive=none&icons=large&links=remote&provider=sky/animal/bbc/box/c4/cartoon/cnbc/cnn/comedy/crime/cue/discovry/disney/doc/e/espn/fashion/food/fox/history/juice/living/mtv/natgeo/nick/playhse/prime/shine/skynews/stratos/tab/tereo/tv1/tv2/tv3/uktv/vibe/weather/63/TVGuide.xml"
+
+sudo mythfilldatabase --file 1 ~/.tzap/TVGuide.xml
+sudo mythfilldatabase --file 2 ~/.szap/TVGuide.xml
+
+or
+
+wget -N -P ~ "http://download.xmltv.honeychurch.org/archive=none&icons=large&links=remote&provider=sky/base/c4/central/concert/ctv8/maori/national/plmnt/prime/tv1/tv2/tv3/tv3plus1/tvnz6/tvnz7/animal/bbc/box/c4/cartoon/cnbc/cnn/comedy/crime/cue/discovry/disney/doc/e/espn/fashion/food/fox/history/juice/living/mtv/natgeo/nick/playhse/prime/shine/skynews/stratos/tab/tereo/tv1/tv2/tv3/uktv/vibe/weather/63/tabtv/ccvt9/c42/TVGuide.xml"
+
+sudo mythfilldatabase --file 1 ~/.szap/TVGuide.xml
+
+
+http://xmltv.honeychurch.org/uploads/nzxmltv/scripts.php
+(Run twice)
+
+
+sudo nano /usr/bin/listings.sh
+
+#!/bin/bash
+wget -N -P ~/.tzap/ "http://download.xmltv.honeychurch.org/archive=none&icons=large&links=remote&provider=freeview/base/c4/central/concert/ctv8/maori/national/plmnt/prime/tv1/tv2/tv3/tv3plus1/tvnz6/tvnz7/TVGuide.xml"
+mythfilldatabase --file 1 ~/.tzap/TVGuide.xml
+wget -N -P ~/.szap/ "http://download.xmltv.honeychurch.org/archive=none&icons=large&links=remote&provider=sky/animal/bbc/box/c4/cartoon/cnbc/cnn/comedy/crime/cue/discovry/disney/doc/e/espn/fashion/food/fox/history/juice/living/mtv/natgeo/nick/playhse/prime/shine/skynews/stratos/tab/tereo/tv1/tv2/tv3/uktv/vibe/weather/63/TVGuide.xml"
+mythfilldatabase --file 2 ~/.szap/TVGuide.xml
+
+sudo chmod +x /usr/bin/listings.sh
+
+listings.sh
+
+
+mythfilldatabase --file 1 ~/.tzap/TVGuide.xml --file 2 ~/.szap/TVGuide.xml
+
+
+
+
+sudo nano /usr/bin/tv_grab_nz
+
+#!/bin/bash
+
+if [ "x$1" = "x" ]; then
+    wget -N -P ~ "http://download.xmltv.honeychurch.org/archive=none&icons=large&links=remote&provider=sky/63/animal/base/bbc/box/c4/c42/cartoon/ccvt9/central/cnbc/cnn/comedy/concert/crime/ctv8/cue/daystar/discovery/disney/documentary/e/espn/fashion/food/foxnews/heartland/history/juice/living/maori/mtv/natgeo/national/nick/playhouse/parliament/prime/shine/skynews/stratos/trackside/tabtv/tereo/travel/travelliving/tv1/tv2/tv3/tv33/tv3plus1/tvnz6/tvnz7/uktv/vibe/weather/TVGuide.xml"
+	cat ~/TVGuide.xml
+    exit 0
+fi
+
+case "$1" in
+    --description)
+	echo "New Zealand"
+	;;
+    --version)
+	echo "1.0"
+	;;
+    --capabilities)
+	echo "baseline"
+	;;
+esac
+
+
+sudo chmod 755 /usr/bin/tv_grab_nz
+
+
+
+sudo mkdir /home/hts/.tzap
+
+sudo nano /usr/bin/tv_grab_nz
+
+#!/bin/bash
+
+if [ "x$1" = "x" ]; then
+    wget -N -P ~/.tzap/ "http://nzepg.org/freeview.xml.gz"
+	gunzip ~/.tzap/freeview.xml.gz
+	cat ~/.tzap/freeview.xml
+    exit 0
+fi
+
+case "$1" in
+    --description)
+	echo "New Zealand"
+	;;
+    --version)
+	echo "1.0"
+	;;
+    --capabilities)
+	echo "baseline"
+	;;
+esac
+
+sudo chmod 755 /usr/bin/tv_grab_nz
+
+
+
+wget http://hftom.free.fr/qvdpautest-0.3.tar.gz
+sudo mv qvdpautest-0.3 /usr/local/src
+
+sudo apt-get install libqt4-dev qt4-qmake
+cd /usr/local/src/qvdpautest-0.3
+sudo qmake-qt4
+sudo make
+
+
+
+
+
+
+
+Restart backend:
+
+sudo nano /usr/bin/switchbackend.sh
+
+#!/bin/bash
+
+for SERVICE in mythtv-backend vdr tvheadend
+do
+ if ps ax | grep -v grep | grep $SERVICE > /dev/null
+ then
+  RUNNING=$SERVICE
+  service $SERVICE stop
+ fi
+done
+
+service sascd stop
+service newcs restart
+
+COMMAND=$1
+
+if [ "$COMMAND" = "restart" ]
+then
+ if [ "$RUNNING" = "mythtv-backend" ]
+ then
+  COMMAND="mythtv"
+ elif [ "$RUNNING" = "vdr" ]
+ then
+  COMMAND="vdr"
+ elif [ "$RUNNING" = "tvheadend" ]
+ then
+  COMMAND="tvheadend"
+ fi
+fi
+
+if [ "$COMMAND" = "xbmc" ]
+then
+ xbmc -fs
+elif [ "$COMMAND" = "mythtv" ]
+then
+ mythfrontend
+fi
+
+
+if [ "$COMMAND" = "mythtv" ]
+then
+ service sascd start
+ service mythtv-backend start
+elif [ "$COMMAND" = "vdr" ]
+then
+ service sascd start
+ service vdr start
+elif [ "$COMMAND" = "tvheadend" ]
+then
+ service tvheadend start
+fi
+
+
+sudo chmod +x /usr/bin/switchbackend.sh
+
+/usr/sbin/service
+
+
+http://ubuntuforums.org/showthread.php?t=1132821
+
+sudo visudo
+
+administrator ALL=NOPASSWD: /usr/bin/apt-get, /usr/sbin/pm-suspend, /sbin/reboot, /usr/bin/switchbackend.sh
+
+
+
+
+
+
+
+
+
+
+
+<h2>VDR</h2>
+<h3>Install</h3>
+http://forum.xbmc.org/showthread.php?t=72940
+sudo add-apt-repository ppa:yavdr/testing-vdr
+sudo apt-get install vdr vdr-plugin-streamdev-* vdr-plugin-vnsiserver vdr-plugin-epgsearch
+
+
+
+http://blog.xbmc.org/forum/showthread.php?t=62696
+http://blog.mymediasystem.net/avchd/xbmc-on-karmic-with-vdpau-and-vdr/
+http://www.linuxtv.org/vdrwiki/index.php/Introduction
+http://kuparinen.org/martti/comp/vdr/vdr.html
+http://www.cobradevil.org/index.php?title=Setup_xbmc_vdr_on_karmic
+http://forum.xbmc.org/showthread.php?t=72940
+
+
+sudo service mythtv-backend stop
+sudo service vdr stop
+
+
+scan -a 0 -f 0 -d 0 -o vdr /usr/share/dvb/dvb-t/nz-Kaukau > ~/channels.conf
+scan -a 2 -f 0 -d 0 -o vdr -l 10750 /usr/share/dvb/dvb-s/OptusD1-160E >> ~/channels-s.conf
+
+sudo mv ~/channels.conf /etc/vdr/
+sudo cat ~/channels-s.conf >> /etc/vdr/channels.conf
+rm channels-s.conf
+sudo rm /var/lib/vdr/channels.conf
+sudo ln -s /etc/vdr/channels.conf /var/lib/vdr/channels.conf
+
+sudo nano /etc/vdr/vdr.default
+
+OPTIONS="-w 60 -D 0 -D 1 -D 2 -D 3 -l3"
+(may need -P"sc -B 2 -B 3")
+
+sudo nano /etc/vdr/plugins/streamdevhosts.conf
+sudo nano /etc/vdr/plugins/vnsi-server/allowed_hosts.conf
+sudo nano /etc/vdr/svdrphosts.conf
+
+	172.22.2.0/24
+
+
+sudo nano /etc/vdr/diseqc.conf
+
+	S160E   22000 H 10750  t v
+
+sudo ln -s /etc/vdr/plugins/streamdevhosts.conf /var/lib/vdr/plugins/streamdevhosts.conf
+sudo chown -R vdr:vdr /etc/vdr
+sudo chown -R vdr:vdr /var/lib/vdr
+
+
+
+
+sudo apt-get install vdr-dev
+
+cd ~
+wget ftp://ftp.tvdr.de/vdr/Developer/vdr-1.7.14.tar.bz2
+tar xjvf vdr-1.7.14.tar.bz2
+sudo mv vdr-1.7.14 /usr/local/src
+cd /usr/local/src/vdr-1.7.14/PLUGINS/src
+sudo hg clone -r trunk http://85.17.209.13:6100/sc
+
+sudo chmod +x /usr/local/src/vdr-1.7.14/PLUGINS/src/sc/contrib/sasc-ng/configure
+sudo chmod +x /usr/local/src/vdr-1.7.14/PLUGINS/src/sc/contrib/sasc-ng/dvbloopback/module/config_dvb.pl
+
+cd /usr/local/src/vdr-1.7.14/PLUGINS/src/sc/contrib/sasc-ng/
+sudo ./configure
+sudo make
+sudo make module
+
+
+sudo apt-get install libfreetype6-dev libfontconfig1-dev libjpeg62-dev libcap-dev libncurses5-dev libncursesw5-dev
+
+sudo nano /usr/local/src/vdr-1.7.14/PLUGINS/src/sc/Makefile
+
+# FFdeCSA
+#CPUOPT     ?= pentium
+CPUOPT     ?= k8
+#PARALLEL   ?= PARALLEL_32_INT
+PARALLEL   ?= PARALLEL_128_SSE2
+
+cd /usr/local/src/vdr-1.7.14/
+sudo make
+sudo make plugins
+
+sudo cp /usr/local/src/vdr-1.7.14/PLUGINS/src/sc/libvdr-sc.so /usr/lib/vdr/plugins/libvdr-sc.so.1.7.14
+sudo chmod -x /usr/lib/vdr/plugins/libvdr-sc.so.1.7.14
+sudo mkdir -p /etc/vdr/plugins/sc
+sudo touch /etc/vdr/plugins/sc/SoftCam.Key
+sudo touch /etc/vdr/plugins/sc/override.conf
+sudo touch /var/lib/vdr/remote.conf
+sudo cp /etc/camfiles/cardclient.conf /etc/vdr/plugins/sc/
+sudo ln -s /etc/vdr/plugins/sc/cardclient.conf /var/lib/vdr/plugins/sc/cardclient.conf
+sudo ln -s /etc/vdr/plugins/sc/SoftCam.Key /var/lib/vdr/plugins/sc/SoftCam.Key
+sudo ln -s /etc/vdr/plugins/sc/override.conf /var/lib/vdr/plugins/sc/override.conf
+
+
+
+Enable SC:
+sudo mv /usr/lib/vdr/plugins/libvdr-sc.so.1.7.14.old /usr/lib/vdr/plugins/libvdr-sc.so.1.7.14
+Disable SC:
+sudo mv /usr/lib/vdr/plugins/libvdr-sc.so.1.7.14 /usr/lib/vdr/plugins/libvdr-sc.so.1.7.14.old
+
+sudo nano /etc/vdr/setup.conf
+#CurrentChannel = 1
+#DiSEqC = 1
+#InitialChannel = 1
+LnbFrequHi = 10750
+LnbFrequLo = 10750
+PrimaryDVB = 0
+
+
+
+Frontend to configure:
+sudo apt-get install vdr-plugin-xineliboutput libxineliboutput-sxfe xineliboutput-sxfe
+vdr-sxfe --hotkeys
+
+sudo nano /etc/vdr/remote.conf
+
+XKeySym.Up      Up
+XKeySym.Down    Down
+XKeySym.Menu    F2
+XKeySym.Ok      Return
+XKeySym.Back    f
+XKeySym.Left    Left
+XKeySym.Right   Right
+XKeySym.Red     F5
+XKeySym.Green   F6
+XKeySym.Yellow  F7
+XKeySym.Blue    F8
+XKeySym.0       0
+XKeySym.1       1
+XKeySym.2       2
+XKeySym.3       3
+XKeySym.4       4
+XKeySym.5       5
+XKeySym.6       6
+XKeySym.7       7
+XKeySym.8       8
+XKeySym.9       9
+XKeySym.Volume+ +
+XKeySym.Volume- -
+XKeySym.Mute    m
+XKeySym.Info    i
+XKeySym.Pause   space
+XKeySym.FastFwd s
+XKeySym.FastRew r
+XKeySym.Power   v
+
+
+
+#sudo apt-get install vdr-plugin-control
+#telnet 172.22.2.11 2002
+
+
+sudo nano /etc/dvr/ca.conf
+
+# Conditional Access configuration for VDR
+#
+# Format:
+#
+# number  description
+#
+# Please contact Klaus.Schmidinger@tvdr.de before assigning a new number
+# to a description, in order to keep them unique.
+
+0      Free To Air
+
+# Special values to "hard code" a channel to a specific DVB card:
+
+1      DVB 1
+2      DVB 2
+3      DVB 3
+4      DVB 4
+
+
+
+sudo service vdr start
+
+
+
+
+For testing
+
+sudo apt-get install vdr-plugin-xineliboutput
+Frontend: sudo apt-get install xine-ui
+
+
+
+
+
+or
+
+
+sudo mv /usr/local/src/vdr-1.7.14 /usr/local/src/vdr-1.7.14-old
+
+mkdir ~/mkvdr
+cd ~/mkvdr
+wget http://kuparinen.org/martti/comp/vdr/distfiles/mkvdr.sh
+wget http://kuparinen.org/martti/comp/vdr/distfiles/mkvdr.conf
+
+
+chmod +x mkvdr.sh
+sudo ./mkvdr.sh -m
+sudo nano .mkvdrrc
+sudo ./mkvdr.sh -x
+
+
+
+Admin:
+
+http://edafe.org/vdr/vdr-admin/
+
+sudo apt-get install vdr-plugin-live
+
+<a href="http://172.22.2.11:8008/">http://172.22.2.11:8008/</a>
+
+admin
+live
+
+sudo apt-get install vdradmin
+sudo nano /etc/default/vdradmin-am
+ENABLED="1"
+sudo service vdradmin-am start
+
+<a href="http://172.22.2.11:8001/">http://172.22.2.11:8001/</a>
+
+linvdr
+linvdr
+
+
+To diagnose errors, run
+sudo service vdr stop
+sudo vdr
+or
+tail -f /var/log/syslog
+
+
+sudo apt-get install vdr-xxv
+sudo nano /etc/default/vdr-xxv
+sudo service vdr-xxv start
+
+
+sudo service mythtv-backend stop
+sudo service vdr start
+
+
+
+sudo service vdr stop
+sudo service mythtv-backend start
+
+sudo apt-get install vdr-plugin-eepg
+
+
+
+
+VDR CAM
+-------
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C93F2FF5
+sudo nano /etc/apt/sources.list
+
+deb http://ppa.launchpad.net/mirak-mirak/ppa/ubuntu karmic main
+
+sudo apt-get install vdr-plugin-opensc-videoguard2
+
+sudo mkdir -p /etc/vdr/plugins/sc
+sudo cp /etc/camfiles/cardclient.conf /etc/vdr/plugins/sc/
+
+sudo nano /etc/vdr/plugins/order.conf
+
+	sc
+
+
+
+
+
+
+
+TVHeadEnd
+=========
+
+http://blog.xbmc.org/forum/showthread.php?t=51945&highlight=tvheadend
+
+https://launchpad.net/~adamsutton/+archive/tvheadend-beta
+
+#wget http://www.lonelycoder.com/debian/dists/hts/main/binary-amd64/hts-tvheadend_2.11_amd64.deb
+
+or
+
+sudo nano /etc/apt/sources.list
+
+deb http://www.lonelycoder.com/debian hts main
+
+wget http://www.lonelycoder.com/public.key && sudo apt-key add public.key && rm public.key
+
+sudo apt-get update
+
+or
+
+sudo add-apt-repository ppa:gregor-fuis/xbmc-pvr
+
+sudo apt-get install hts-tvheadend
+
+
+#sudo nano /etc/init.d/tvheadend
+
+#-DAEMON_ARGS="-f -u hts -g video"
+#+DAEMON_ARGS="-f -u mythtv -g video"
+
+sudo cp -R /home/hts/.hts ~
+sudo chown -R administrator:administrator ~/.hts
+
+sudo service tvheadend restart
+
+
+http://172.22.2.11:9981
+
+
+
+Disable MythTv Backend
+
+
+sudo nano /etc/init/mythtv-backend.conf
+
+start on (local-filesystems and net-device-up IFACE=lo and never)
+
+
+
+Access Control:
+* 0.0.0.0/0 Streaming/Video Recorder/Web Interface
+
+XML TV:
+New Zealand
+
+
+DVB-S:
+
+Turn Autodetect Muxes on
+
+Code Word Client:
+127.0.0.1 15000 Sky0 password 01:02:03:04:05:06:07:08:09:10:11:12:13:14 Update Card
+
+Add Mux:
+12519000 22500000 3/4 SYS_DVBS PSK_8 Horizontal Default
+
+Satellite Config:
+Circular 10750
+
+
+DVB-T:
+
+Add Mux:
+690000 8MHz QAM64 8k 1/16 NONE 3/4 3/4
+706000
+778000
+
+570000 8MHz QAM64 8k 1/16 NONE 3/4 3/4
+586000
+602000
+
+
+Multiplexes:
+Copy to other adapter
+
+General:
+Map DVB services to channels (Refresh page if option is not available)
+
+
+
+Channels:
+Match unmatched channels to XMLTV sources
+Merge identical channels
+
+
+Configuration, Digital Video Recorder:
+
+/mnt/tv/tvheadend/
+
+Tick all filename options
+
+
+
+DiBcom 3000MC/P						-> Hauppauge Nova-T 500 (1)
+DiBcom 3000MC/P						-> Hauppauge Nova-T 500 (2)
+Montage Technology DS3000/TS2020	-> TeVii S464
+Montage Technology DS3000/TS2020	-> TeVii S470
+Conexant CX24116/CX24118			-> Hauppauge HVR-4000
+
+Hauppauge HVR-4000, Hauppauge Nova-T 500, TeVii S464 and Tevii S470
+
+
+
+
+EPGSnoop
+========
+
+sudo apt-get install dvbtune dvbsnoop python-setuptools
+wget http://launchpad.net/epgsnoop/trunk/0.84/+download/epgsnoop-0.84.tar.gz
+
+
+epgsnoop --adapter=3 --tune=12671 --lnb=1300
+epgsnoop --adapter=3 --tune=12483 --lnb=1300
+
+
+
+RedButton
+=========
+
+
+wget http://redbutton.svn.sourceforge.net/viewvc/redbutton/redbutton-download/trunk/?view=tar
+
+make
+
+
+cat ~/.tzap/channels.conf | grep MHEG
+./rb-download -v -a 1 1450
+
+cat ~/.szap/channels.conf | grep MHEG
+./rb-download -v -a 5 9013
+
+
+Temporary fix for XBMC:
+
+sudo nano ~/.xbmc/userdata/addon_data/pvr.hts/settings.xml
+
+<setting id="host" type="text" value="172.22.2.11" />
+
+
+
+
+
+
+
+sudo apt-get install git
+
+git clone https://github.com/tvheadend/tvheadend.git
+
+sudo apt-get install libavahi-client-dev libavahi-core-dev libavahi-common-dev libssl-dev
+
+nano ~/tvheadend/src/dvb/dvb_satconf.c
+
+  add_to_lnblist(array, "Universal");
+  add_to_lnblist(array, "DBS");
+  add_to_lnblist(array, "Standard");
+  add_to_lnblist(array, "Enhanced");
+  add_to_lnblist(array, "C-Band");
+  add_to_lnblist(array, "C-Multi");
+  add_to_lnblist(array, "Circular 10750");
+  add_to_lnblist(array, "11300");
+  return array;
+
+.....
+
+  } else if(!strcmp(id, "Circular 10750")) {
+    *f_low    = 10750000;
+    *f_hi     = 0;
+    *f_switch = 0;
+  } else if(!strcmp(id, "11300")) {
+    *f_low    = 11300000;
+    *f_hi     = 0;
+    *f_switch = 0;
+  }
+
+
+cd tvheadend
+./configure
+make
+sudo make install
+
+sudo nano /etc/init.d/tvheadend
+
+DAEMON=/usr/local/bin/$NAME
+
+
+
+sudo su - hts
+tvheadend -C
+tvheadend -f -u hts -g video
+
+
+
+
+
+
+Windows:
+
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\rtsp]
+@="Real Time Streaming Protocol"
+
+"URL Protocol"=""
+[HKEY_CLASSES_ROOT\rtsp\shell]
+[HKEY_CLASSES_ROOT\rtsp\shell\open]
+[HKEY_CLASSES_ROOT\rtsp\shell\open\command]
+@="\"C:\\Program Files\\VideoLan\\VLC\\vlc.exe\"%1"
+
+
+
+
+
+
+
+
+
+
+
+XBMC DB
+-------
+
+mysql -u root -p
+
+CREATE USER 'xbmc' IDENTIFIED BY 'xbmc';
+DROP DATABASE xbmc_video;
+DROP DATABASE xbmc_music;
+CREATE DATABASE IF NOT EXISTS xbmc_video DEFAULT CHARACTER SET latin1 COLLATE latin1_general_ci;
+CREATE DATABASE IF NOT EXISTS xbmc_music DEFAULT CHARACTER SET latin1 COLLATE latin1_general_ci;
+GRANT ALL ON xbmc_video.* TO 'xbmc';
+GRANT ALL ON xbmc_music.* TO 'xbmc';
+
+USE xbmc_music;
+CREATE INDEX test_idx ON song(idAlbum);
+ALTER TABLE song add INDEX idArtist(idArtist);
+ALTER TABLE song add INDEX idGenre(idGenre);
+
+ALTER TABLE song add INDEX test_idx(idAlbum);
+
+
+sudo nano ~/.xbmc/userdata/advancedsettings.xml
+
+<advancedsettings>
+ <videoextensions>
+  <add>.mod</add>
+ </videoextensions>
+ <videodatabase>
+  <type>mysql</type>
+  <host>172.22.2.11</host>
+  <port>3306</port>
+  <user>xbmc</user>
+  <pass>xbmc</pass>
+  <name>xbmc_video</name>
+ </videodatabase>
+ <musicdatabase>
+  <type>mysql</type>
+  <host>172.22.2.11</host>
+  <port>3306</port>
+  <user>xbmc</user>
+  <pass>xbmc</pass>
+  <name>xbmc_music</name>
+ </musicdatabase>
+</advancedsettings>
+
+
+
+sudo nano /etc/mysql/my.cnf
+
+	skip-name-resolve
+
+sudo service mysql restart
+
+
+
+
+Webcam
+======
+
+Zoneminder
+----------
+
+	sudo apt-get install zoneminder
+
+http://172.22.2.11/zm
+
+
+FFMPEG/FFServer
+---------------
+
+sudo ffserver
+
+sudo nano /etc/ffserver.conf
+
+
+
+Motion
+------
+
+	sudo apt-get install motion
+
+	sudo nano /etc/default/motion
+
+	start_motion_daemon=yes
+
+	sudo motion
+
+	sudo nano /etc/motion/motion.conf
+
+VLC
+---
+
+cvlc -vvv v4l2:///dev/video1 --no-sout-audio --sout "#transcode{vcodec=mp4v,vb=5000,acodec=none}:std{access=http,mux=ts,dst=172.22.2.11:8081}:display{noaudio}"
+cvlc v4l2:///dev/video1 --no-sout-audio --sout "#transcode{vcodec=mp4v,vb=800,acodec=none}:std{access=http,mux=ts,dst=172.22.2.11:8081}:display{noaudio}"
+cvlc v4l2:///dev/video1 --no-sout-audio --sout "#transcode{vcodec=mp2v,vb=800,acodec=none}:rtp{dst=172.22.2.11,mux=ts,port=8280,port-audio=8278,port-video=8282,sdp=rtsp://172.22.2.11:8281}"
+
+cvlc v4l2:///dev/video1 --no-sout-audio --sout "#transcode{vcodec=mp4v,vb=5000,acodec=none}:duplicate{dst=std{access=http,mux=ts,dst=172.22.2.11:8081},dst=std{access=mmsh,mux=asf,dst=172.22.2.11:8181},dst=rtp{dst=172.22.2.11,port=8280,mux-ts,sdp=rtsp://172.22.2.11:8281},select="video"}"
+
+rtsp://172.22.2.11:8281
+
+#cvlc v4l2:///dev/video1 --sout http/ts:172.22.2.11:8081
+
+v4l2:///dev/video1
+
+
+cvlc v4l2:///dev/video0 --no-sout-audio --sout "#transcode{vcodec=mp4v,vb=800,acodec=none}:std{access=http,mux=ts,dst=172.22.2.5:8888}:display{noaudio}"
+sudo vlc-wrapper v4l2:///dev/video0 --no-sout-audio --sout "#transcode{vcodec=mp4v,vb=800,acodec=none}:std{access=http,mux=ts,dst=172.22.2.5:8888}:display{noaudio}"
+cvlc v4l2:///dev/video0 :sout='#transcode{vcodec=mp4v,vb=800}:std{access=http,mux=ts,dst=172.22.2.5:8888}' :no-sout-standard-sap :ttl=5 :sout-keep :no-audio --video --no-sout-audio
+
+:sout=#transcode{vcodec=WMV2,vb=800,scale=1,acodec=none}:duplicate{dst=std{access=http,mux=asf,dst=172.22.2.11:8081},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8181},dst=rtp{dst=172.22.2.11,port=8281,mux=asf,port-audio=-1,port-video=-1},select=video}
+:sout=#transcode{vcodec=WMV2,vb=800,scale=1,acodec=none}:std{access=http,mux=asf,dst=172.22.2.11:8081}
+:sout=#transcode{vcodec=DIV3,vb=800,scale=1,acodec=none}:std{access=http,mux=asf,dst=172.22.2.11:8081}
+:sout=#transcode{vcodec=mp2v,vb=800,scale=1,acodec=none}:std{access=http,mux=ts,dst=172.22.2.11:8081}
+
+:sout=#transcode{vcodec=mp4v,vb=800,scale=1,acodec=none}:std{access=http,mux=ts,dst=172.22.2.11:8081}
+
+
+mux:
+ts  -  5 secs
+ps  - 15 secs
+asf - 10 secs
+avi - 15 secs
+
+vcodec:
+mp2v
+h264
+
+sudo nano /etc/vlc/vlm.480.conf
+
+#new channel0 broadcast enabled
+#setup channel0 input v4l2:///dev/video0
+#setup channel0 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=0,height=240,width=320},dst=std{access=http,mux=ts,dst=172.22.2.11:8081},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8181},select=video}
+
+new channel1 broadcast enabled
+setup channel1 input v4l2:///dev/video1
+setup channel1 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=1,height=240,width=320},dst=std{access=http,mux=ts,dst=172.22.2.11:8081},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8181},select=video}
+
+new channel2 broadcast enabled
+setup channel2 input v4l2:///dev/video2
+setup channel2 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=2,height=240,width=320},dst=std{access=http,mux=ts,dst=172.22.2.11:8082},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8182},select=video}
+
+new channel3 broadcast enabled
+setup channel3 input v4l2:///dev/video3
+setup channel3 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=3,height=240,width=320},dst=std{access=http,mux=ts,dst=172.22.2.11:8083},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8183},select=video}
+
+#new channel4 broadcast enabled
+#setup channel4 input v4l2:///dev/video4
+#setup channel4 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=4,height=240,width=320},dst=std{access=http,mux=ts,dst=172.22.2.11:8084},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8184},select=video}
+
+new background broadcast enabled
+setup background input fake://
+setup background output #transcode{sfilter=mosaic,vcodec=mp2v,vb=5000,scale=1,acodec=none}:bridge-in{delay=400,id-offset=100}:standard{access=http,mux=ts,dst=172.22.2.11:8085}
+
+control background play
+#control channel0 play
+control channel1 play
+control channel2 play
+control channel3 play
+#control channel4 play
+
+vlc -d -I http --http-host 172.22.2.11:8080 --vlm-conf /etc/vlc/vlm.480.conf --fake-file /etc/vlc/background.480.png --fake-aspect-ratio "4:3" --mosaic-width 640 --mosaic-height 480 --mosaic-keep-picture --mosaic-rows 2 --mosaic-cols 2 --mosaic-position 1 --mosaic-order 1,2,3,4
+
+
+sudo nano /usr/share/vlc/http/.hosts
+
+172.22.2.0/24
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo nano /etc/vlc/vlm.conf
+
+#new channel0 broadcast enabled
+#setup channel0 input v4l2:///dev/video0
+#setup channel0 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=0,height=480,width=640},dst=std{access=http,mux=ts,dst=172.22.2.11:8081},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8181},select=video}
+
+new channel1 broadcast enabled
+setup channel1 input v4l2:///dev/video1
+setup channel1 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=1,height=480,width=640},dst=std{access=http,mux=ts,dst=172.22.2.11:8081},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8181},select=video}
+
+new channel2 broadcast enabled
+setup channel2 input v4l2:///dev/video2
+setup channel2 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=2,height=480,width=640},dst=std{access=http,mux=ts,dst=172.22.2.11:8082},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8182},select=video}
+
+new channel3 broadcast enabled
+setup channel3 input v4l2:///dev/video3
+setup channel3 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=3,height=480,width=640},dst=std{access=http,mux=ts,dst=172.22.2.11:8083},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8183},select=video}
+
+#new channel4 broadcast enabled
+#setup channel4 input v4l2:///dev/video4
+#setup channel4 output #transcode{vcodec=mp2v,vb=5000,acodec=none}:duplicate{dst=mosaic-bridge{id=4,height=480,width=640},dst=std{access=http,mux=ts,dst=172.22.2.11:8084},dst=std{access=mmsh,mux=asfh,dst=172.22.2.11:8184},select=video}
+
+new background broadcast enabled
+setup background input fake://
+setup background output #transcode{sfilter=mosaic,vcodec=mp2v,vb=5000,scale=1,acodec=none}:bridge-in{delay=400,id-offset=100}:standard{access=http,mux=ts,dst=172.22.2.11:8085}
+
+control background play
+#control channel0 play
+control channel1 play
+control channel2 play
+control channel3 play
+#control channel4 play
+
+cvlc -d -I http --http-host 172.22.2.11:8080 --vlm-conf /etc/vlc/vlm.conf --fake-file /etc/vlc/background.png --fake-aspect-ratio "4:3" --mosaic-width 1280 --mosaic-height 960 --mosaic-keep-picture --mosaic-rows 2 --mosaic-cols 2 --mosaic-position 1 --mosaic-order 1,2,3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo nano /etc/vlc/vlm.480.mosaic.conf
+
+#new channel0 broadcast enabled
+#setup channel0 input v4l2:///dev/video0
+#setup channel0 output #transcode{vcodec=mp4v,vb=1000,acodec=none}:mosaic-bridge{id=0,height=240,width=320}
+
+new channel1 broadcast enabled
+setup channel1 input v4l2:///dev/video1
+setup channel1 output #transcode{vcodec=mp4v,vb=1000,acodec=none}:mosaic-bridge{id=0,height=240,width=320}
+
+new channel2 broadcast enabled
+setup channel2 input v4l2:///dev/video2
+setup channel2 output #transcode{vcodec=mp4v,vb=1000,acodec=none}:mosaic-bridge{id=0,height=240,width=320}
+
+new channel3 broadcast enabled
+setup channel3 input v4l2:///dev/video3
+setup channel3 output #transcode{vcodec=mp4v,vb=1000,acodec=none}:mosaic-bridge{id=0,height=240,width=320}
+
+#new channel4 broadcast enabled
+#setup channel4 input v4l2:///dev/video4
+#setup channel4 output #transcode{vcodec=mp4v,vb=1000,acodec=none}:mosaic-bridge{id=0,height=240,width=320}
+
+new background broadcast enabled
+setup background input fake://
+setup background output #transcode{sfilter=mosaic,vcodec=mp4v,vb=5000,scale=1,acodec=none}:bridge-in{delay=400,id-offset=100}:standard{access=http,mux=ts,dst=172.22.2.11:8085}
+
+control background play
+#control channel0 play
+control channel1 play
+control channel2 play
+control channel3 play
+#control channel4 play
+
+
+cvlc -d -I http --http-host 172.22.2.11:8080 --vlm-conf /etc/vlc/vlm.480.mosaic.conf --fake-file /etc/vlc/background.480.png --fake-aspect-ratio "4:3" --mosaic-width 640 --mosaic-height 480 --mosaic-keep-picture --mosaic-rows 2 --mosaic-cols 2 --mosaic-position 1 --mosaic-order 1,2,3,4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Need to add:
+
+dst for jpeg to grab screenshot for each stream
+Init script for cvlc daemon
+Date/Time Strings, or location names, ...
+
+
+
+
+
+
+
+--rtsp-caching 200
+--http-caching
+
+
+cvlc v4l2:///dev/video0:width=1280:height=1024:fps=25 --no-sout-audio --sout "#transcode{vcodec=mp4v,acodec=none,vb=15000}:http{mux=ts,dst=:8888,name="Lounge"}:display{noaudio}" &
+cvlc v4l2:///dev/video0:width=1280:height=1024:fps=25 --live-caching 50 --no-sout-audio --sout "#transcode{vcodec=mp4v,acodec=none,vb=15000}:rtp{mux=ts,sdp=rtsp://:8888/rtsp.sdp,name="Lounge"}:display{noaudio}" &
+
+ls /dev/video*
+arecord -l
+
+cvlc v4l2:///dev/video0:width=640:height=480:fps=25 --live-caching 100 --no-sout-audio --sout "#transcode{vcodec=mp4v,acodec=none,vb=15000}:rtp{mux=ts,sdp=rtsp://:8888/rtsp.sdp,name="Lounge"}:display{noaudio}" &
+cvlc v4l2:///dev/video0:width=640:height=480:fps=25 --input-slave=alsa://plughw:2,0 --live-caching 100 --sout "#transcode{vcodec=mp4v,acodec=aac,vb=15000}:rtp{mux=ts,sdp=rtsp://:8888/rtsp.sdp,name="Lounge"}" &
+killall vlc
+
+http://172.22.2.10:8888

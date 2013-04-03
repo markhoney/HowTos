@@ -1,0 +1,1721 @@
+<h2>Operating System</h2>
+<p>On MythBuntu install, select Secondary Backend with Frontend and use the NVidia driver</p>
+
+
+
+
+
+
+<h3>Remote Connections</h3>
+<h3>SSH</h3>
+<p>Edit the SSHD Config file</p>
+<p class="command">sudo nano /etc/ssh/sshd_config</p>
+<p>At the bottom, add</p>
+<p class="command">UseDNS no</p>
+<p>Then run</p>
+<p class="command">sudo service ssh restart</p>
+
+<h3></h3>
+<p class="command">sudo apt-get install mousepad</p>
+
+
+Synergy
+=======
+
+Windows Server:
+http://sourceforge.net/projects/synergy2/files/
+
+In the Windows machine, choose "Share this computer's keyboard and mouse (server)"
+Press Configure
+Add screens for Windows machine name and HTPC
+Add dead areas 100px left and right corners for bottom of Windows and top of HTPC
+Add Link for 0 to 100% of the bottom of Windows to go to 0 to 100% of the top of HTPC
+Add Link for 0 to 100% of the top of HTPC to go to 0 to 100% of the bottom of Windows
+Set to run on login
+Start
+
+
+Ubuntu Server:
+
+	sudo apt-get install quicksynergy
+
+Under the Share tab in QuickSynergy, type HTPC in the Above box and then click Execute and then Close.
+
+Ubuntu Client:
+
+	sudo apt-get install quicksynergy
+
+Application autostart:
+
+	synergyc 172.22.2.110
+
+
+<h3>Updates</h3>
+Click on Applications, System, Software Sources.
+
+On the Ubuntu Software tab, untick Source Code (the tickbox will be greyed, so click once to tick and a second time to untick and the tickbox will turn white)
+Tick partner updates on the Other Software tab, and Unsupported updates (lucid-backports) on the Updates tab. Change Automatic updates on the Updates tab to Install security updates without confirmation.
+
+Click Close and then Reload
+
+
+or
+
+	sudo nano /etc/apt/sources.list
+
+Comment out all deb src and uncomment all deb lines
+
+	sudo apt-get update
+
+	sudo apt-get upgrade
+
+If there are any packages kept back, such as a new kernel image, install them with
+
+	sudo apt-get dist-upgrade
+
+
+<h3>Screen</h3>
+
+	sudo apt-get install screen
+
+
+
+
+
+	sudo apt-get install build-essential linux-headers-generic
+
+
+
+
+Run Mythbuntu Control Center
+System Updates, choose Launch in the background
+MySQL, Enable optimization & tweaks
+Plugins, enable Browser & News
+Proprietary Codecs, Enable Medibuntu, enable Keyring, enable codecs
+
+
+<h3>Startup</h3>
+<p>Applications, Settings, Session and Startup, Application Autostart tab, untick:</p>
+<ul>
+<li>MythTV Frontend</li>
+<li>XFCE Settings Helper</li>
+<li>Check for new hardware drivers</li>
+<li>Network Manager</li>
+<li>Update Notifier</li>
+<li>Bluetooth</li>
+</ul>
+
+
+Control Service Startup
+-----------------------
+
+sudo apt-get install rcconf sysv-rc-conf
+
+
+
+
+<h3>NFS</h3>
+<p>Create a folder for mounting the NAS (media)</p>
+<p class="command">sudo mkdir /mnt/media</p>
+sudo nano /etc/fstab
+172.22.2.5:/mnt/media   /mnt/media      nfs     defaults,_netdev        0       0
+
+sudo mount /mnt/media
+
+
+<p class="command">sudo mkdir /mnt/tv</p>
+sudo nano /etc/fstab
+172.22.2.11:/mnt/tv   /mnt/tv      nfs     defaults,_netdev        0       0
+
+sudo mount /mnt/tv
+
+
+
+<h2>Hardware</h2>
+
+<h3>Sound</h3>
+<p>To check for 5.1 sound</p>
+<p class="command">speaker-test -c 6 -D surround51 -t wav</p>
+<p>To edit volumes, run</p>
+<p class="command">alsamixer</p>
+<p>Press F4 for Capture settings</p>
+<p>Press M on S/PDIF to enable it</p>
+<p>Press H for help</p>
+<p>Press TAB to switch between groups</p>
+
+aplay -l
+aplay -L
+
+wget http://www.lynnepublishing.com/surround/www_lynnemusic_com_surround_test.ac3
+
+sudo apt-get install smplayer
+mplayer -ao alsa:device=surround51 -ac ffac3 www_lynnemusic_com_surround_test.ac3
+mplayer -ao alsa:device=iec958 -ac hwac3 www_lynnemusic_com_surround_test.ac3
+
+
+
+<h3>Monitoring</h3>
+<p>To install useful utilities for monitoring hardware, run</p>
+<p class="command">sudo apt-get install sysstat htop iotop ntop iptraf</p>
+<p>Some useful commands are</p>
+<ul>
+<li>top</li>
+<li>vmstat 1</li>
+<li>free</li>
+<li>df -h</li>
+<li>iostat 1</li>
+<li>sar 1 10</li>
+<li>mpstat -P ALL</li>
+<li>sudo ntop</li>
+<li>sudo iptraf</li>
+<li>htop</li>
+<li>cat /proc/mdstat</li>
+<li>cat /proc/meminfo</li>
+<li>cat /proc/partitions</li>
+<li>cat /proc/cpuinfo</li>
+<li>cat /proc/cpuinfo</li>
+</ul>
+
+<p>For ntop stats, go to http://media:3000</p>
+
+<h3>Graphics Card</h3>
+<p><a href="http://www.mythtv.org/wiki/VDPAU#Troubleshooting">http://www.mythtv.org/wiki/VDPAU#Troubleshooting</a></p>
+<p>To generate an X11 xorg.conf file, run</p>
+<p class="command">sudo nvidia-xconfig --no-composite</p>
+
+<p class="command">sudo nano /etc/X11/xorg.conf</p>
+
+
+
+
+Section "ServerLayout"
+    Identifier     "Layout0"
+    Screen      0  "Screen0"
+    InputDevice    "Keyboard0"           "CoreKeyboard"
+    InputDevice    "Mouse0"              "CorePointer"
+EndSection
+
+Section "Files"
+EndSection
+
+Section "InputDevice"
+    Identifier     "Mouse0"
+    Driver         "mouse"
+    Option         "Protocol"            "auto"
+    Option         "Device"              "/dev/psaux"
+    Option         "Emulate3Buttons"     "no"
+    Option         "ZAxisMapping"        "4 5"
+EndSection
+
+Section "InputDevice"
+    Identifier     "Keyboard0"
+    Driver         "kbd"
+EndSection
+
+Section "Monitor"
+    Identifier     "Monitor0"
+    VendorName     "Samsung"
+    ModelName      "LA40A550P1RXRD"
+    HorizSync       28.0 - 33.0
+	VertRefresh     43.0 - 72.0
+#	Option         "DPMS"
+    Option         "UseEDIDDpi"          "False"
+    Option         "DPI"                 "100x100"
+#   Option         "DPI"                 "150x150"
+EndSection
+
+Section "Device"
+	Identifier     "Device0"
+    Driver         "nvidia"
+    VendorName     "NVIDIA Corporation"
+    Option         "NoLogo"              "true"
+    Option         "DynamicTwinView"     "false"
+    Option         "FlatPanelProperties" "Scaling = Native"
+    Option         "ModeValidation"      "NoVesaModes, NoXServerModes, NoVertRefreshCheck, NoHorizSyncCheck"
+    Option         "UseDisplayDevice"    "DFP-1"
+    Option         "ModeDebug"           "true"
+	Option         "HWCursor"            "false"
+    Option         "TripleBuffer"        "true"
+EndSection
+
+Section "ServerFlags"
+    Option         "blank time"          "0"
+    Option         "standby time"        "0"
+    Option         "suspend time"        "0"
+    Option         "off time"            "0"
+    Option "NoPM" "1"
+EndSection 
+
+Section "Screen"
+    Identifier     "Screen0"
+    Device         "Device0"
+    Monitor        "Monitor0"
+    DefaultDepth    24
+    SubSection     "Display"
+        Depth       24
+        Modes "1920x1080_60_0" "1920x1080_24"
+    EndSubSection
+EndSection
+
+Section "Extensions"
+    Option         "Composite" "Disable"
+EndSection
+
+
+https://help.ubuntu.com/community/Grub2
+
+
+
+sudo nano /etc/default/grub
+
+GRUB_GFXMODE=1920x1080,640x480
+
+sudo update-grub
+
+
+
+http://www.sucka.net/2010/03/nvidia-drivers-ubuntu-10-04-lucid-lynx/
+
+
+
+
+Onkyo Remote
+------------
+
+sudo apt-get install ir-keytable
+sudo nano /etc/rc_keymaps/onkyo_33501
+
+# table onkyo_33501, type: NEC
+
+0xd2ac04        KEY_POWER               # Source Power
+0xd2ac0d        KEY_ANGLE               # Display
+0xd2ac0b        KEY_CHANNELUP           # Channel Up
+0xd2ac0c        KEY_CHANNELDOWN         # Channel Down
+0xd26c98        KEY_TUNER               # Guide/Top Menu
+0xd26c97        KEY_TEXT                # Setup
+0xd2ac08        KEY_HOME                # Home
+0xd26c9f        KEY_BACK                # Return
+0xd26c99        KEY_INFO                # Prev CH/Menu
+0xd26c9a        KEY_UP                  # Up
+0xd26c9d        KEY_RIGHT               # Right
+0xd26c9b        KEY_DOWN                # Down
+0xd26c9c        KEY_LEFT                # Left
+0xd26c9e        KEY_ENTER               # Enter
+0xd26c93        KEY_PAUSE               # Pause
+0xd26c8d        KEY_PLAY                # Play
+0xd26c8e        KEY_STOP                # Stop
+0xd26c90        KEY_PREVIOUSSONG        # Skip Back
+0xd26c92        KEY_REWIND              # Rewind
+0xd26c91        KEY_FASTFORWARD         # Fast Forward
+0xd26c8f        KEY_NEXTSONG            # Skip Forward
+0xd2ac41        KEY_RED                 # Red
+0xd2ac42        KEY_GREEN               # Green
+0xd2ac43        KEY_YELLOW              # Yellow
+0xd2ac40        KEY_BLUE                # Blue
+0xd2ac0e        KEY_1                   # 1
+0xd2ac0f        KEY_2                   # 2
+0xd2ac10        KEY_3                   # 3
+0xd2ac11        KEY_4                   # 4
+0xd2ac12        KEY_5                   # 5
+0xd2ac13        KEY_6                   # 6
+0xd2ac14        KEY_7                   # 7
+0xd2ac15        KEY_8                   # 8
+0xd2ac16        KEY_9                   # 9
+0xd2ac17        KEY_0                   # 0
+0xd2ac18        KEY_SUBTITLE            # +10
+0xd2ac1c        KEY_RECORD              # Clear
+
+sudo nano /etc/rc_maps.cfg
+
+# *     rc-rc6-mce               /lib/udev/rc_keymaps/rc6_mce
+*       rc-rc6-mce               /etc/rc_keymaps/onkyo_33501
+
+
+
+nano ~/.xbmc/userdata/keymaps/power.xml
+
+<keymap>
+  <global>
+    <remote>
+      <power>PreviousMenu</power>
+    </remote>
+  </global>
+</keymap>
+
+nano ~/.xbmc/userdata/keymaps/watched.xml
+
+<keymap>
+  <global>
+    <remote>
+      <record>ToggleWatched</record>
+    </remote>
+  </global>
+</keymap>
+
+nano ~/.xbmc/userdata/Lircmap.xml
+
+<lircmap>
+    <remote device="linux-input-layer">
+        <altname>cx23885_remote</altname>
+        <altname>devinput</altname>
+        <title>KEY_TEXT</title>
+        <guide>KEY_TUNER</guide>
+    </remote>
+</lircmap>
+
+
+sudo dpkg-reconfigure lirc
+
+Linux input layer
+None
+/dev/input/by-id/usb-Philips...
+
+sudo nano /etc/init.d/lirc
+
+echo "lirc nec" > $file
+
+
+
+# sudo /usr/bin/ir-keytable -p NEC,RC6 -w /etc/rc_keymaps/onkyo_33501
+
+Testing:
+
+sudo ir-keytable -t
+irw
+
+VCL Webcam
+----------
+
+sudo apt-get install vlc
+
+sudo nano .
+
+
+
+
+Temperatures/fans/etc
+---------------------
+
+http://ubuntuforums.org/showthread.php?t=2780
+
+	sudo apt-get install lm-sensors
+
+	sudo sensors-detect
+
+Hit enter lots, say yes to the lsat question regarding adding the module automagically
+
+Reboot or modprobe the suggested module:
+
+	sudo modprobe w83627ehf
+
+	sensors
+
+	sudo apt-get install powernowd
+
+	sudo nano /etc/default/powernowd
+
+	OPTIONS="-q"
+
+sudo service powernowd restart
+	
+dmesg | grep powernowd
+
+sudo apt-get install hddtemp
+
+sudo hddtemp /dev/sd?
+
+
+
+
+
+
+
+
+cat /proc/driver/rtc
+
+
+Suspend
+-------
+
+http://ubuntuforums.org/showthread.php?t=1176528
+
+http://www.mythtv.org/wiki/ACPI_Wakeup
+http://www.mythtv.org/wiki/MCE_Remote#S3_.2F_Suspend_To_RAM
+
+http://forum.xbmc.org/showthread.php?t=73236
+
+sudo apt-get install upower
+
+To test:
+
+upower -d
+
+
+sudo nano /etc/default/rcS
+
+HWCLOCKACCESS=no
+
+
+
+#sudo apt-get install powersaved
+or
+sudo apt-get install powernowd
+
+Turn off power management
+
+To successfully suspend, need to unload the dvb_usb_dib0700
+
+
+sudo pm-suspend
+
+cat /var/log/pm-suspend.log
+
+
+cat /proc/acpi/wakeup
+
+Front USB? Keyboard/mouse wakeup.
+sudo sh -c 'echo "USB0" >> /proc/acpi/wakeup'
+
+Can't sleep:
+#sudo sh -c 'echo "USB2" >> /proc/acpi/wakeup'
+#sudo sh -c 'echo "US15" >> /proc/acpi/wakeup'
+
+Can't wake:
+#sudo sh -c 'echo "US12" >> /proc/acpi/wakeup'
+
+sudo pm-suspend
+
+
+
+
+
+WOL
+---
+
+http://evanjones.ca/ubuntu-tips.html
+http://www.lowtek.ca/roo/2009/wake-on-lan/
+
+sudo apt-get install ethtool
+
+To view settings:
+sudo ethtool eth0
+cat /sys/class/net/eth0/device/power/wakeup
+
+To turn WOL on
+sudo ethtool -s eth0 wol g
+
+To allow the NIC to wake the box
+lspci -tv
+or
+lsusb -tv
+
+Match the NIC ID with the output of:
+cat /proc/acpi/wakeup
+
+
+
+cat /etc/default/halt
+
+sudo nano /etc/network/if-up.d/wol
+
+#!/bin/sh
+
+# Don't bother to do anything for lo.
+if [ "$IFACE" = lo ]; then
+        exit 0
+fi
+
+# Only run from ifup.
+if [ "$MODE" != start ]; then
+        exit 0
+fi
+
+echo enabled > /sys/class/net/eth0/device/power/wakeup
+grep 'BR13.*enabled' < /proc/acpi/wakeup >/dev/null || echo BR13 > /proc/acpi/wakeup
+grep 'USB0.*enabled' < /proc/acpi/wakeup >/dev/null || echo USB0 > /proc/acpi/wakeup
+
+Backend:
+sudo sh -c "grep 'PEX2.*enabled' < /proc/acpi/wakeup >/dev/null || echo PEX2 > /proc/acpi/wakeup"
+
+
+
+sudo chmod +x /etc/network/if-up.d/wol
+
+sudo nano /etc/default/halt
+
+NETDOWN=no
+
+
+From the command line:
+ethtool -s eth0 wol g
+echo "echo enabled > /sys/class/net/eth0/device/power/wakeup" | sudo sh
+sudo sh -c "echo BR13 >> /proc/acpi/wakeup"
+sudo sh -c "grep 'BR13.*enabled' < /proc/acpi/wakeup >/dev/null || echo BR13 > /proc/acpi/wakeup"
+
+sudo pm-suspend
+
+wakeonlan 00:e0:61:0e:2c:7b
+
+
+
+
+
+
+<h2>Networking</h2>
+<h3>Samba</h3>
+sudo nano /etc/samba/smb.conf
+workgroup = HONEYCHURCH
+
+sudo service smbd restart
+
+<h2>MythTv</h2>
+
+#wget http://www.avenard.org/files/ubuntu-repos/ubuntu-repos.key && sudo apt-key add ubuntu-repos.key && rm ubuntu-repos.key
+#sudo nano /etc/apt/sources.list
+#deb http://www.avenard.org/files/ubuntu-repos karmic release
+
+http://avenard.org/media/Ubuntu_Repository/Entries/2009/11/9_Karmic_and_Using_Avenard_repo.html
+
+#sudo apt-get update
+#sudo apt-get install nvidia-glx-185 nvidia-185-libvdpau nvidia-185-kernel-source
+#sudo apt-get install nvidia-glx-190 nvidia-190-libvdpau nvidia-190-kernel-source
+#sudo apt-get install libvdpau1
+#sudo apt-get upgrade
+#sudo apt-get install mythtv nvidia-glx-190
+
+#Problems:
+#wget http://www.avenard.org/files/ubuntu-repos/release/libvdpau1_0.2-0ubuntu13_amd64.deb
+#sudo dpkg --force-all -i libvdpau1_0.2-0ubuntu13_amd64.deb
+
+#sudo dpkg --force-all -i /var/cache/apt/archives/nvidia-195-libvdpau_195.22-1tvt6_amd64.deb
+
+
+
+
+
+
+MPD
+
+https://help.ubuntu.com/community/MPD
+
+sudo apt-get install mpd mpc--
+
+sudo apt-get install alsa-base alsa-tools
+sudo apt-get install pulseaudio pulseaudio-utils
+sudo apt-get install moc
+
+sudo nano /etc/mpd.conf
+
+music_directory                 "/mnt/media/Audio/Music"
+bind_to_address                 "any"
+zeroconf_enabled                "yes"
+zeroconf_name                   "Garage"
+mixer_type                      "software"
+
+sudo service mpd restart
+
+mpc update
+tail -f /var/log/mpd/mpd.log
+
+mocp
+h
+q
+
+
+http://www.raspberrypi.org/phpBB3/viewtopic.php?f=38&t=11124
+http://jordanburgess.com/post/38986434391/raspberry-pi-airplay
+http://trouch.com/2012/08/03/airpi-airplay-audio-with-raspberry/
+
+
+
+Frontend
+--------
+
+Volumes to full
+
+Enable Network Remote Control interface
+
+
+PIP Video Location: Top Right
+
+Current Video Playback Profile: CPU++
+
+Change Menu Theme to Classic
+
+
+Browse all Channels
+
+
+
+
+Don't exit on Prev button
+http://www.oneweb.co.uk/mythtv/2009/02/configuring-your-mce-ir-remote/
+Remote repeat
+sudo nano ~/.lirc/mythtv
+For directions in lirc file (Up, Down, Left, Right) and Vol Up/Down through the whole file (each should be listed 3 times)
+repeat = 1
+delay = 5
+
+
+
+
+Enable OpenGL vertical sync for timing
+
+
+TV:
+
+Browse all channels
+
+Change Channels immediately
+
+Allow live TV to move shows
+
+Always use Browse mode in LiveTV
+
+Use VDPAU Normal profile
+
+
+
+
+
+Videos:
+
+#Don't Show Unknown File Types
+
+
+
+
+http://www.mythtv.org/wiki/Commflagging
+
+Choose logo Commercial detection only
+
+
+
+
+
+
+Remote Control
+--------------
+
+In Harmony software
+
+
+http://xbmc.org/wiki/?title=Lirc_and_Lircmap.xml
+http://xbmc.org/wiki/?title=Keymap.xml
+
+http://www.mythtv.org/wiki/Keybindings
+http://www.mythtv.org/wiki/LIRC
+
+
+
+
+sudo nano /etc/lirc/lircd.conf
+
+include "/usr/share/lirc/remotes/hauppauge/lircd.conf.hauppauge"
+
+
+
+
+
+Create startup for frontend
+
+http://xbmc.org/forum/showthread.php?t=30230
+
+sudo nano /usr/bin/switchfrontend.sh
+
+#!/bin/bash
+
+for SERVICE in mythfrontend.real xbmc.bin
+do
+ if ps ax | grep -v grep | grep $SERVICE > /dev/null
+ then
+  RUNNING=$SERVICE
+  killall $SERVICE
+  killall -9 $SERVICE
+ fi
+done
+
+COMMAND=$1
+
+if [ "$COMMAND" = "restart" ]
+then
+ if [ "$RUNNING" = "mythfrontend.real" ]
+ then
+  COMMAND="mythtv"
+ elif [ "$RUNNING" = "xbmc.bin" ]
+ then
+  COMMAND="xbmc"
+ fi
+fi
+
+if [ "$COMMAND" = "xbmc" ]
+then
+ xbmc -fs
+elif [ "$COMMAND" = "mythtv" ]
+then
+ mythfrontend
+fi
+
+
+
+sudo chmod +x /usr/bin/switchfrontend.sh
+
+
+(Run on both boxes)
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat ~/.ssh/authorized_keys
+(Copy to other box)
+nano ~/.ssh/authorized_keys
+
+ssh administrator@tv 'ls'
+ssh administrator@ht 'ls'
+
+
+
+http://ubuntuforums.org/showthread.php?t=1132821
+
+sudo visudo
+
+administrator ALL=NOPASSWD: /usr/bin/apt-get, /usr/sbin/pm-suspend, /sbin/reboot, /usr/bin/switchfrontend.sh
+	
+
+
+
+nano ~/.lircrc
+
+include ~/.lirc/skype
+include ~/.lirc/googleearth
+include ~/.lirc/irexec
+include ~/.lirc/irxevent
+
+
+nano ~/.lirc/irexec
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Power
+    config = sudo pm_suspend
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Go
+    config = sudo reboot
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = TV
+    config = switchfrontend.sh mythtv &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Videos
+    config = switchfrontend.sh xbmc &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Play
+    config = ssh administrator@tv 'sudo switchbackend.sh vdr' &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Pause
+    config = ssh administrator@tv 'sudo switchbackend.sh mythtv' &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Stop
+    config = ssh administrator@tv 'sudo reboot' &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Record
+    config = ssh administrator@tv 'sudo switchbackend.sh tvheadend' &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Forward
+    config = switchfrontend.sh restart &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Rewind
+    config = ssh administrator@tv 'sudo switchbackend.sh restart' &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = SkipForward
+    config = ssh administrator@tv 'sudo switchbackend.sh restart'; switchfrontend.sh restart &
+    repeat = 0
+end
+
+begin
+    remote = Hauppauge_350
+    prog = irexec
+    button = Replay/SkipBackward
+    config = ssh administrator@tv 'sudo reboot'; sudo reboot &
+    repeat = 0
+end
+
+
+
+
+On the next reboot, irexec should be started for us
+
+
+
+sudo apt-get install lirc-x
+
+#Application autostart:
+
+#	irxevent -d
+
+#nano ~/.lirc/irxevent
+
+nano ~/.lirc/skype
+
+begin
+    remote = mceusb
+    prog = skype
+    button = Down
+    config = ;
+    repeat = 0
+    delay = 0
+end
+
+
+nano ~/.lirc/googleearth
+
+
+
+
+nano ~/.lirc/mythtv
+
+
+media/Rew/Fwd/Rec are copies
+
+
+    config = M
+-    button = Home
++    button = DVD
+
+
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = RecTV
+    config = ;
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Red
+    config = F2
+    repeat = 0
+    delay = 0
+end
+ 
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Green
+    config = F3
+    repeat = 0
+    delay = 0
+end
+ 
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Yellow
+    config = F4
+    repeat = 0
+    delay = 0
+end
+ 
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Blue
+    config = F5
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Videos
+    config = ALT-V
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Music
+    config = ALT+M
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Pictures
+    config = ALT+G
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = RecTV
+    config = ALT+R
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = LiveTV
+    config = ALT+L
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = BB2
+    config = ALT-S
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = BB3
+    config = T
+    repeat = 0
+    delay = 0
+end
+
+begin
+    remote = mceusb
+    prog = mythtv
+    button = Aspect
+    config = W
+    repeat = 0
+    delay = 0
+end
+
+
+
+Keys mapped to different functions:
+Info - More
+Exit - Home
+Menu - DVD
+Prev - Back
+
+
+Setup, General:
+System Exit key: Alt-ESC
+
+Frontend - Setup,Edit Keys
+JumpPoints:
+Live TV - Alt-L
+MythVideo - Alt-V
+MythGallery - Alt-G
+MythWeather - Alt-W
+Play Music - Alt-M
+Previously Recorded - Alt-R
+TV Playback:
+NextSubtitle - Alt-S
+
+
+Extra Buttons
+TV - mythtv
+LiveTV - Live TV
+Music - Music
+Pictures - Gallery
+Videos - Videos
+RecTV - Recorded TV
+Power - Suspend
+BB2 - Subtitle
+Mute - Mute
+
+
+
+
+
+Display/Enter - Tab
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://www.mythtv.org/wiki/MCE_Remote
+
+http://forums.overclockers.com.au/showthread.php?t=810214
+
+
+
+http://swiss.ubuntuforums.org/showthread.php?p=8122986
+http://www.bareis.info/node/2
+
+
+mythfilldatabase?
+
+
+
+sudo nano .lirc/mythtv
+
+begin
+    remote = mceusb
+    prog = irexec
+    button = Power
+    config = sudo /etc/acpi/sleep.sh
+    config = sudo /etc/acpi/sleepbtn.sh
+end
+
+
+
+
+XBMC Config:
+
+/usr/share/xbmc/system/Lircmap.xml
+
+
+
+
+
+MythTV Themes
+-------------
+
+
+Demo theme:
+wget http://www.fecitfacta.com/themes/demotheme.42809.tar.gz
+
+tar xzvf demotheme
+sudo mv demotheme /usr/share/mythtv/themes/
+
+
+
+
+
+
+XBMC
+====
+
+#sudo add-apt-repository ppa:yavdr/testing-xbmc
+#sudo add-apt-repository ppa:henningpingel/xbmc
+sudo add-apt-repository ppa:gregor-fuis/xbmc-pvr
+sudo add-apt-repository ppa:henningpingel/xbmc
+#sudo add-apt-repository ppa:nvidia-vdpau/ppa
+sudo add-apt-repository ppa:ubuntu-x-swat/x-updates
+sudo apt-get install nvidia-current
+
+sudo apt-get update
+sudo apt-get install xbmc xbmc-skin-* xbmc-web-*
+#xbmc-eventclients-*
+xbmc -fs
+
+
+sudo apt-get install python-pysqlite2
+
+wget http://romcollectionbrowser.googlecode.com/files/platform_libraries.zip
+
+sudo apt-get install unzip
+unzip platform_libraries.zip
+sudo mkdir /usr/lib/xbmc/addons/script.module.pysqlite/lib/
+sudo cp ~/platform_libraries/Linux64/pysqlite2 /usr/lib/xbmc/addons/script.module.pysqlite/lib/
+
+sudo mkdir /usr/lib/xbmc/addons/script.module.pil/lib/
+sudo cp -R /usr/share/pyshared/PIL /usr/lib/xbmc/addons/script.module.pil/lib/
+
+sudo cp -R ~/.xbmc/addons/skin.back-row/scripts/script.logo-downloader ~/.xbmc/addons/
+
+http://code.google.com/p/mythbox/
+
+wget http://mythbox.googlecode.com/files/mythbox-svn-1798.tar.gz
+tar xzvf mythbox-svn-1798.tar.gz
+rm mythbox-svn-1798.tar.gz
+rm -R  ~/.xbmc/scripts/MythBox/
+mv MythBox ~/.xbmc/scripts/
+
+
+
+http://code.google.com/p/myth2xbmc/
+
+wget http://myth2xbmc.googlecode.com/files/myth2xbmc-v22.50.zip
+unzip -d myth2xbmc myth2xbmc-v22.50.zip
+mv myth2xbmc ~/.xbmc/scripts/
+
+
+
+cat ~/.mythtv/mysql.txt
+
+
+nano ~/.xbmc/userdata/sources.xml
+
+<sources>
+    <video>
+        <source>
+            <name>TV Channels</name>
+            <path pathversion="1">myth://mythtv:87tgFkn7@tv</path>
+        </source>
+        <source>
+            <name>Live TV</name>
+            <path pathversion="1">htsp://172.22.2.11:9982/</path>
+        </source>
+        <source>
+            <name>TV Channels</name>
+            <path pathversion="1">htsp://172.22.2.11:9982/tags/0</path>
+        </source>
+        <source>
+            <name>TV Series</name>
+            <path pathversion="1">/mnt/media/Videos/TV/</path>
+        </source>
+        <source>
+            <name>Movies</name>
+            <path pathversion="1">/mnt/media/Videos/Movies/</path>
+        </source>
+        <source>
+            <name>Music</name>
+            <path pathversion="1">/mnt/media/Videos/Music/</path>
+        </source>
+        <source>
+            <name>Other</name>
+            <path pathversion="1">/mnt/media/Videos/Other/</path>
+        </source>
+        <source>
+            <name>Unsorted</name>
+            <path pathversion="1">/mnt/media/Unsorted/Videos/</path>
+        </source>
+    </video>
+    <music>
+        <default pathversion="1">Music</default>
+        <source>
+            <name>Music</name>
+            <path pathversion="1">/mnt/media/Music/</path>
+        </source>
+		<source>
+            <name>Unsorted</name>
+            <path pathversion="1">/mnt/media/Unsorted/Music/</path>
+        </source>
+    </music>
+    <pictures>
+        <default pathversion="1">Pictures</default>
+        <source>
+            <name>Pictures</name>
+            <path pathversion="1">/mnt/media/Pictures/</path>
+        </source>
+    </pictures>
+    <programs>
+        <default pathversion="1"></default>
+    </programs>
+    <files>
+        <default pathversion="1"></default>
+    </files>
+</sources>
+
+
+
+TV Display modes and XBMC
+-------------------------
+
+http://forum.xbmc.org/showpost.php?p=506251&postcount=1
+
+
+Ubuntu splash
+-------------
+
+http://forum.xbmc.org/showpost.php?p=592613&postcount=48
+
+
+Fixing connection issues
+------------------------
+
+For XBox:
+
+nano ~/.xbmc/userdata/advancedsettings.xml
+
+  <hosts>
+    <entry name="tv">172.22.2.11</entry>
+  </hosts>
+
+or for Linux:
+
+sudo nano /etc/hosts
+
+	172.22.2.11	tv
+
+
+To play Panasonic Camcorder files
+----------------------------------
+
+nano ~/.xbmc/userdata/advancedsettings.xml
+
+<advancedsettings>
+  <videoextensions>
+    <add>.mod</add>
+  </videoextensions>
+</advancedsettings>
+
+To hide trailers
+----------------
+
+nano ~/.xbmc/userdata/advancedsettings.xml
+
+ <video>
+  <excludefromscan>
+   <regexp>-trailer</regexp>
+  </excludefromscan>
+  <excludefromlisting>
+   <regexp>-trailer</regexp>
+  </excludefromlisting>
+ </video>
+
+
+To show BBC news in the RSS Feeds
+---------------------------------
+
+nano ~/.xbmc/userdata/RssFeeds.xml
+
+http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml
+
+
+
+XBMC LIRC
+----
+
+http://xbmc.org/wiki/index.php?title=Universal_Remote_Control
+
+http://xbmc.org/wiki/?title=Lirc_and_Lircmap.xml
+
+http://xbmc.org/wiki/?title=List_of_Built_In_Functions
+
+
+
+cp /usr/share/xbmc/system/Lircmap.xml ~/.xbmc/userdata/
+nano ~/.xbmc/userdata/Lircmap.xml
+
+
+	<remote device="mceusb">
+		<play>Play</play>
+		<pause>Pause</pause>
+		<stop>Stop</stop>
+		<forward>Forward</forward>
+		<reverse>Rewind</reverse>
+		<left>Left</left>
+		<right>Right</right>
+		<up>Up</up>
+		<down>Down</down>
+		<select>OK</select>
+		<pageplus>ChanUp</pageplus>
+		<pageminus>ChanDown</pageminus>
+		<back>Back</back>
+		<menu>DVD</menu>
+-		<title>Guide</title>
+		<info>More</info>
+		<skipplus>Skip</skipplus>
+		<skipminus>Replay</skipminus>
+		<display>Aspect</display>
+		<start>Home</start>
+		<record>Record</record>
+		<volumeplus>VolUp</volumeplus>
+		<volumeminus>VolDown</volumeminus>
+		<mute>Mute</mute>
+		<power>Power</power>
+		<myvideo>Videos</myvideo>
+		<mymusic>Music</mymusic>
+		<mypictures>Pictures</mypictures>
+		<mytv>TV</mytv>
+		<one>One</one>
+		<two>Two</two>
+		<three>Three</three>
+		<four>Four</four>
+		<five>Five</five>
+		<six>Six</six>
+		<seven>Seven</seven>
+		<eight>Eight</eight>
+		<nine>Nine</nine>
+		<zero>Zero</zero>
+		<star>Star</star>
+		<hash>Hash</hash>
+		<clear>Clear</clear>
+-		<enter>Enter</enter>
+		<red>Red</red>
+		<green>Green</green>
+		<yellow>Yellow</yellow>
+		<blue>Blue</blue>
+		<teletext>Teletext</teletext>
+
+		<title>Enter</title>
+		<recordedtv>RecTV</recordedtv>
+		<guide>Guide</guide>
+		<livetv>LiveTV</livetv>
+		<playlist>Radio</playlist>
+		<subtitle>BB2</subtitle>
+		<language>BB3</language>
+	</remote>
+
+	<remote device="Hauppauge_350">
+		<channelplus>Ch+</channelplus>
+		<channelminus>Ch-</channelminus>
+		<obc1>Pictures</obc1>
+		<obc2>Guide</obc2>
+		<obc3>Vol-</obc3>
+		<obc4>Vol+</obc4>
+		<obc5>Down</obc5>
+		<obc6>Up</obc6>
+		<obc7>Left</obc7>
+		<obc8>Right</obc8>
+	</remote>
+
+
+cp /usr/share/xbmc/system/keymaps/remote.xml ~/.xbmc/userdata/keymaps/
+nano ~/.xbmc/userdata/keymaps/remote.xml
+
+In global section:
+
+    <universalremote>
+      <obc1>togglefullscreen</obc1>
+      <obc2>togglewatched</obc2>
+      <obc3>audiodelayminus</obc3>
+      <obc4>audiodelayplus</obc4>
+      <obc5>subtitledelayminus</obc5>
+      <obc6>subtitledelayplus</obc6>
+      <obc7>zoomout</obc7>
+      <obc8>zoomin</obc8>
+    </universalremote>
+
+
+To standardise the use of Info and Title buttons:
+
+  <MusicOSD>
+    <remote>
+      <title>CodecInfo</title>
+      <info>Info</info>
+    </remote>
+  </MusicOSD>
+
+  <SlideShow>
+    <remote>
+      <info>Info</info>
+      <title>CodecInfo</title>
+    </remote>
+  </SlideShow>
+
+
+
+
+
+
+
+http://blog.xbmc.org/forum/forumdisplay.php?s=&daysprune=&f=67
+
+mv XXXXXXXXX /usr/share/xbmc/skin/
+
+
+
+xbmc -fs
+
+
+
+
+
+
+sudo apt-get install libprojectm2
+
+
+
+
+
+
+How-Tos
+
+http://xbmc.org/forum/forumdisplay.php?f=110
+
+
+
+Boot into XBMC, no GDM:
+
+http://xbmc.org/forum/showthread.php?t=38473
+
+
+
+
+Weather Plugin
+--------------
+
+http://blog.xbmc.org/forum/showthread.php?t=52034
+
+
+
+Ken Burns Effect
+----------------
+
+http://blog.xbmc.org/forum/showthread.php?t=49958
+
+http://blog.xbmc.org/forum/showthread.php?t=54523
+
+	<include name="BackgroundVarsGlobal">
+		<include>FullScreenDimensions</include>
+		<timeperimage>20000</timeperimage>
+		<randomize>true</randomize>
+		<fadetime>1000</fadetime>
+		<include>Animation_BackgroundFade</include>
+		<animation effect="zoom" start="110" end="130" center="1280,720" time="15000" tween="cubic" easing="inout" pulse="true" condition="!Skin.HasSetting(animation_bg)">Conditional</animation>
+		<animation effect="slide" start="-10,-10" end="20,20" time="7000" tween="cubic" easing="inout" pulse="true" condition="!Skin.HasSetting(animation_bg)">Conditional</animation>
+		<!--<animation effect="rotate" center="360,640" start="-2" end="2" time="11000" tween="cubic" easing="inout" pulse="true" condition="!Skin.HasSetting(animation_bg)">Conditional</animation>-->
+		<visible>!Control.IsVisible(52) | [Control.IsVisible(52) + Skin.HasSetting(nocurtains)]</visible>
+	</include>
+
+
+
+
+
+tail -f ~/.xbmc/temp/xbmc.log
+
+
+
+
+iPhone Remote
+-------------
+
+mkdir iphone
+cd iphone
+wget http://xbmc.denhaas.info/XBMC_HTTP-R_v0.4.zip
+unzip XBMC_HTTP-R_v0.4.zip
+rm XBMC_HTTP-R_v0.4.zip
+nano includes/config.php
+
+1 => array("name" => "Location", "ip" => "172.22.2.10", "port" => "8080", "mac" => "00:e0:61:0e:2c:7b")
+cd ..
+sudo mv iphone /var/www
+
+or
+
+Install XBMoteC
+
+
+VDPAU
+-----
+
+http://xbmc.org/wiki/?title=Videos_Settings#Player
+http://xbmc.org/wiki/?title=My_Videos#OSD_Video_Settings
+
+In video settings, choose VDPAU for video decode.
+
+While playing video, bring up the menu (exit button), select "Video settings", change "Interlaced handling" to Bob, "Video scaling method" to Bilinear and turn "Crop black bars" on. Scroll to the bottom of the menu and select "Set as default for all movies"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Other Apps</h2>
+<h3>Google Earth</h3>
+<p>Follow the instructions at <a href="https://help.ubuntu.com/community/Medibuntu">https://help.ubuntu.com/community/Medibuntu</a> to add the MediBuntu repository</p>
+<p class="command">sudo apt-get install googleearth</a>
+
+<h3>Skype</h3>
+
+<p class="command">wget <a href="http://www.skype.com/go/getskype-linux-beta-ubuntu-64">http://www.skype.com/go/getskype-linux-beta-ubuntu-64</a></p>
+<p class="command">sudo dpkg -i skype-ubuntu-intrepid_2.1.0.81-1_amd64.deb</p>
+
+Webcam
+------
+
+
+sudo apt-get install v4l2ucp c4l-conf
+
+
+
+sudo apt-get install exuberant-ctags
+
+cd ~
+
+git clone http://repo.or.cz/r/microdia.git
+
+cd microdia
+
+make
+
+sudo rmmod gspca_sn9c20x
+sudo insmod ./sn9c20x.ko
+
+sudo strip -g sn9c20x.ko
+sudo mkdir -p /lib/modules/`uname -r`/kernel/drivers/media/video/usbvideo/
+sudo cp sn9c20x.ko /lib/modules/`uname -r`/kernel/drivers/media/video/usbvideo/
+sudo depmod -a
+
+sudo nano /etc/modprobe.d/blacklist.conf
+
+blacklist gspca_sn9c20x
+
+
+
+
+LD_PRELOAD=/usr/lib/libv4l/v4l2convert.so mplayer tv:// -tv driver=v4l2:width=640:height=480:fps=25:device=/dev/video0 -vo x11
+
+
+
+
+sudo apt-get install motion webcam-server
+
+export LD_PRELOAD=/usr/lib/libv4l/v4l1compat.so
+webcam-server &
+
+sudo nano /etc/default/motion
+
+start_motion_daemon=yes
+
+
+sudo nano /etc/motion/motion.conf
+
+daemon on
+
+webcam_localhost off
+
+
+control_port 8088
+
+control_localhost off
+
+
+
+sudo service motion start
+
+
+
+
+
+
+
+MAME
+====
+
+sudo apt-get install gmameui
+
+
+
+
+
+Boxee
+
+sudo apt-get install libcurl3 libsdl-gfx1.2-4 libtre5; libxmlrpc-c3 libcurl3 xsel
+
+wget http://dl.boxee.tv/boxee-0.9.22.13692.x86_64.deb
+sudo dpkg -i http://dl.boxee.tv/boxee-0.9.22.13692.x86_64.deb
+
+
+
+
+
+
+Enna
+====
+
+
+deb http://packages.geexbox.org/ karmic main
+
+sudo apt-get install enna
+
+
+
+Transcoding
+===========
+
+sudo add-apt-repository ppa:stebbins/handbrake-snapshots
+
+sudo apt-get install handbrake-gtk handbrake-cli
+
+
+
+
+
+
+
+
+
+sudo sed -i 's/ActivateWindow(Videos,MovieTitles,return)/ActivateWindow(Videos,Movies,return)/g' /usr/share/xbmc/addons/skin.confluence/720p/Home.xml
+sudo sed -i 's/ActivateWindow(Videos,TVShowTitles,return)/ActivateWindow(Videos,TVShows,return)/g' /usr/share/xbmc/addons/skin.confluence/720p/Home.xml
+sudo sed -i 's/ActivateWindow(Music)/ActivateWindow(MusicLibrary,root,return)/g' /usr/share/xbmc/addons/skin.confluence/720p/Home.xml
+
+sed -i 's/ActivateWindow(Videos,MovieTitles,return)/ActivateWindow(Videos,Movies,return)/g' /private/var/stash/Applications.fm1K88/XBMC.app/XBMCData/XBMCHome/addons/skin.touched/4x3Hirez/Home.xml
+sed -i 's/ActivateWindow(Videos,TVShowTitles,return)/ActivateWindow(Videos,TVShows,return)/g' /private/var/stash/Applications.fm1K88/XBMC.app/XBMCData/XBMCHome/addons/skin.touched/4x3Hirez/Home.xml
+sed -i 's/ActivateWindow(Music)/ActivateWindow(MusicLibrary,root,return)/g' /private/var/stash/Applications.fm1K88/XBMC.app/XBMCData/XBMCHome/addons/skin.touched/4x3Hirez/Home.xml

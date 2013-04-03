@@ -1,0 +1,1741 @@
+Installation
+============
+
+Install Ubuntu Server 9.10 (32 or 64). Create user named Administrator.
+
+On install, select to have SSH Server and Samba server installed (and maybe LAMP - Linux, Apache, MySQL, PHP/Perl/Python - if you want to run some cool web-based stuff on the box)
+
+
+
+If you are installing to a USB stick, there are a few optimisations that make sure the USB stick isn't too heavily utilised.
+
+Format your root partition as EXT2. We don't want EXT3/4 or other journalling filesystems, as they write to the disk too often.
+
+Don't setup a swapfile partition or file on the USB stick.
+
+To setup a swapfile on the RAID partition after install, do the following:
+
+	sudo dd if=/dev/zero of=/mnt/media/media.swap bs=1M count=1024
+	sudo mkswap /mnt/media/media.swap
+	sudo swapon /mnt/media/media.swap
+
+	sudo nano /etc/fstab
+
+/mnt/media/media.swap  none  swap  sw  0 0
+
+We should also reduce the "swappiness" of Ubuntu (from the default of 60), so that the swapfile's only used when necessary:
+
+	sudo nano /etc/sysctl.conf
+
+vm.swappiness=10
+
+You can see the swapfile being used with:
+
+	free -m
+
+Don't worry if your memory is almost all used, it's probably because Linux is caching heavily from disk. The amount of memory being used for cache can be seen in the "cached" column of the "free" command output.
+
+https://help.ubuntu.com/community/SwapFaq
+
+Change the options for the root drive to minimise writes to the USB stick:
+
+	sudo nano /etc/fstab
+
+UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx /               ext2    defaults,nodiratime,noatime,async,errors=remount-ro 0       1
+
+
+OS Config
+=========
+
+Updates
+-------
+
+We need to get the box up-to-date:
+
+	sudo nano /etc/apt/sources.list
+
+Comment out (with a leading #) all deb-src lines (we don't need source files) and uncomment all deb lines (we want as many packages as possible available).
+
+To update the list of available packages/versions:
+
+	sudo apt-get update
+
+To upgrade all packages on the box:
+
+	sudo apt-get upgrade
+
+This should be pretty quick, as there's a local NZ repository.
+
+Screen
+------
+
+Learn to use screen:
+
+Screen gives us virtual terminals within our SSH session. This helps if we lose our SSH connection, as we can reconnect to our virtual terminal. It also allows us to do multiple things at once without having to open multiple SSH (puTTY) connections.
+
+	sudo apt-get install screen
+
+Run screen:
+
+	screen
+
+We can now run any commands we want to. We can create extra screen terminals by pressing Control-A and then C (for Create). We can switch between screens using Control-A, N (for Next). To close screen, type exit in each open terminal to close them. Upon closing the last terminal, screen will close and you'll be back at the parent terminal session. To exit screen and leave your terminals running, press Control-A, D (to Detach). To re-connect to a detached screen session, type:
+
+	screen -r
+
+Obviously, screen sessions do not survive a reboot!
+
+
+
+Other useful commands
+---------------------
+
+To find files, we first need to update the locate DB:
+
+	sudo updatedb
+
+Now we can search using:
+
+	locate xxxxxxxx
+
+Remember to re-update the DB if there are new files on the box you want included in the search (although I think locate may run the update if it's not been run in 24 hours)
+
+
+To search for packages we can use:
+
+	apt-cache search xxxxxxxxx
+
+Multiple strings can be used with spaces between them:
+
+	apt-cache search xxxxxxxxx yyyyyy
+
+
+
+Temperatures/fans/etc
+---------------------
+
+http://ubuntuforums.org/showthread.php?t=2780
+
+	sudo apt-get install lm-sensors
+
+	sudo sensors-detect
+
+Hit enter lots, say yes to the lsat question regarding adding the module automagically
+
+Reboot or modprobe the suggested module:
+
+	sudo modprobe w83627ehf
+
+	sensors
+
+	sudo apt-get install powernowd
+
+	sudo nano /etc/default/powernowd
+
+	OPTIONS="-q"
+
+sudo service powernowd restart
+	
+dmesg | grep powernowd
+
+sudo apt-get install hddtemp
+
+sudo hddtemp /dev/sd?	
+
+
+
+Remote Management
+=================
+
+SSH
+---
+
+Use puTTY to connect via SSH to the box.
+
+We can speed up SSH logins, by telling the box to no longer do a reverse DNS lookup on your IP:
+
+	sudo nano /etc/ssh/sshd_config
+
+At the bottom, add:
+
+	UseDNS no
+
+To save and exit, press:
+
+	Control-X, y, Enter
+
+Now restart SSH (don't worry, if we're connected via SSH we won't lose our connection):
+
+	sudo service ssh restart
+
+
+Webmin
+------
+
+Prerequisites for Webmin (web-based remote server management software - http://www.webmin.com/):
+
+	sudo apt-get install libnet-ssleay-perl libauthen-pam-perl libio-pty-perl libmd5-perl
+
+Get Webmin
+
+	wget http://cdnetworks-us-1.dl.sourceforge.net/project/webadmin/webmin/1.500/webmin_1.500_all.deb
+	sudo dpkg -i webmin_1.500_all.deb
+
+To manage the server, visit:
+
+	https://media:10000
+
+Login with your "administrator" user.
+
+You can probably do most things below through Webmin, but I'd recommend doing them from the command line.
+
+
+
+Disks
+=====
+
+RAID Array
+----------
+
+Grab some required software:
+
+	sudo apt-get install mdadm xfsprogs smartmontools
+
+(For mail config, setup as Satellite system with SMTP of smtp.xtra.co.nz - we'll deal with this properly later)
+
+List all the disks, to see which ones we want to add into our array:
+
+	sudo fdisk -l
+
+Create a partition on each disk (e.g. /dev/sdb) and set as type "Linux raid auto":
+
+	sudo fdisk /dev/sdb
+	n,p,1,Enter,Enter,t,fd,p,w
+
+Create the array partition. We'll call it md0 (standard naming convention - I think it means Multiple Disk device 0). Choose RAID5. Pick a chunk size, 1024 (or larger) may be best. Add each partition (the partition we created is partition 1, so our partitions are /dev/sdb1, etc.).
+
+	sudo mdadm --create --verbose /dev/md0 --level=5 --raid-devices=4 --chunk=1024 /dev/sd[bcdef]1
+	sudo mdadm --create --verbose /dev/md0 --level=5 --raid-devices=4 --chunk=1024 /dev/sd[bcde]1 missing
+
+(partitions can either be listed individually, such as /dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1, or use the bracketed notation above as shorthand.)
+
+Wait for the raid build to complete.
+
+sudo mdadm --create --verbose /dev/md0 --level=5 --raid-devices=6 /dev/sd[bcdefg]1
+sudo mdadm --detail /dev/md0
+cat /proc/mdstat
+sudo mkfs.ext4 -v -E stride=128,stripe-width=640 /dev/md0
+/dev/md0        /mnt/media  ext4    noatime,nodiratime,data=writeback 0       0
+
+
+Degraded array
+--------------
+
+We can build a degraded RAID5 array, which is a RAID5 array with 1 disk missing and hence no redundancy. This is useful if you already have data on one of the disks to be used. You can copy the data from the disk to the array, then wipe it and add it to the array, all without having to re-stripe the array (which can take a long time).
+
+To create a degraded array, run:
+
+sudo mdadm --create --verbose /dev/md0 --level=5 --raid-devices=4 --chunk=1024 /dev/sd[bcd]1 missing
+
+
+(Re)Build Monitoring
+--------------------
+
+You can view progress with:
+
+	cat /proc/mdstat
+or
+	sudo mdadm --detail /dev/md0
+
+To keep an eye on the build, you can create a script:
+
+	nano mdinfo.sh
+
+#!/bin/sh
+while [ 1 -eq 1 ]
+do
+  clear
+  cat /proc/mdstat
+  sleep 1
+done
+
+
+Set the file to executable:
+
+	chmod +x mdinfo.sh
+
+Run this file and every second it will show the build progress:
+
+	./mdinfo.sh
+
+(./ is required to tell Linux that the binary is in the current directory, as unlike DOS Linux doesn't check the current working directory when asked to run a file). Press COntrol-C to exit.
+
+
+Array Messages
+--------------
+
+Now let's check that we can monitor the RAID health:
+
+Add the address we want our warnings mailed to:
+
+	sudo nano /etc/mdadm/mdadm.conf
+
+MAILADDR mark@honeychurch.org
+
+	sudo service mdadm restart
+
+#Now we're going to reconfigure the postfix mail server:
+
+#	sudo dpkg-reconfigure postfix
+
+#This time, setup as Satellite system with system mail name like media.honeychurch.org (if using a real live domain name, use a subdomain such as media, so that mail can be delivered), SMTP of smtp.xtra.co.nz and forward root mail to administrator. Clear all other domain names to accept mail for - leave everything else as default.
+
+Now we can send a test email from mdadm:
+	
+	sudo mdadm --monitor -1 /dev/md0 --test
+
+Check the mail log to see that the SMTP server received the email:
+
+	cat /var/log/mail.log
+
+Finally, check your email to make sure the SMTP server delivered the mail (give it up to an hour to arrive as Telecom SMTP seems a bit on the slow side)
+
+
+Speed check
+-----------
+
+To check the raw speed we get reading from our array, run:
+
+sudo hdparm -tT /dev/md0
+
+Hopefully you'll get more than a gigabit/s (125MB/s), which means that you'll be limited by your network connection and not your array speed. I get around 500MB/s for cached reads and 250MB/s for buffered reads.
+
+
+Power Saving
+------------
+
+To check the status of a drive at any time:
+
+	sudo hdparm -C /dev/sdf
+
+#	sudo hdparm -S 120 /dev/sdf
+
+
+
+Filesystem
+==========
+
+Create FS
+---------
+
+Make a filesystem on our new partition. You can match the su (Stripe Unit - equals block size) and sw (Stripe Width - number of active disks, which for RAID5 is number of disks minus one) with our array:
+
+	sudo mkfs.xfs -f -d su=1024k,sw=3 -l size=64m -i size=512 /dev/md0
+
+It may be better to just let the software choose RAID settings. Apparently it should pick the right settings:
+
+	sudo mkfs.xfs -f -l size=64m -i size=512 /dev/md0
+
+You can also use other filesystems, such as EXT3:
+
+	sudo mkfs.ext3 -E stride=384 /dev/md0
+
+
+Mounting
+--------
+
+Make a folder to mount the partition in:
+
+	sudo mkdir /mnt/media
+
+Test mounting the partition, to see if there are errors:
+	
+	sudo mount -o noatime,nodiratime,logbufs=8 /dev/md0 /mnt/media
+
+If there are no errors, try to create a file on the partition and see if it exists:
+
+	sudo touch /mnt/media/test.txt
+
+	ls /mnt/media
+
+Next, if all is good, add an entry to the fstab file so that the partition will be re-mounted on boot:
+
+	sudo nano /etc/fstab
+
+/dev/md0        /mnt/media  xfs    noatime,nodiratime,logbufs=8 0       0
+
+
+Once this has been added, we can use shorthand to mount and unmount the partition using either the device name or mount point:
+
+	sudo umount /dev/md0
+
+	sudo mount /mnt/media
+
+
+Permissions
+-----------
+
+We should now add our root level folders, for our media. I have folders for Videos, Music, Pictures, Docs, eBooks and Software:
+
+	sudo mkdir /mnt/media/Videos /mnt/media/Music /mnt/media/Pictures /mnt/media/Docs /mnt/media/eBooks /mnt/media/Software
+
+Now we're going to create a new limited user called media with which to access our media files:
+
+	sudo useradd media
+
+Now we need to change ownership of our mount point and any files we have in it to the media user:
+
+	sudo chown -R media:media /mnt/media
+
+Setup all files with read-write for owner and read for others
+
+	sudo chmod -R 644 /mnt/media
+
+or
+
+	find /mnt/media -type f -exec sudo chmod 644 {} \;
+
+Add execute permissions for folders (needed to be able to traverse them)
+
+	find /mnt/media -type d -exec sudo chmod 755 {} \;
+
+
+Sharing
+=======
+
+Samba
+-----
+
+We can now share out our partition via Samba. We'll backup our old config file and create a new one:
+
+	sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.old
+
+	sudo nano /etc/samba/smb.conf
+
+Add to the file something along the lines of:
+
+
+[global]
+        netbios name = Media
+        server string = Media Server
+        workgroup = HONEYCHURCH
+        os level = 20
+        wins support = true
+        map to guest = Bad User
+        guest account = media
+        domain master = No
+#       invalid users = root
+#       nt acl support = no
+	disable spoolss = Yes
+
+[media]
+        path = /mnt/media
+        read only = No
+        guest ok = Yes
+        browseable = No
+        nt acl support = no
+        writable = yes
+
+[Videos]
+        path = /mnt/media/Videos
+        guest ok = Yes
+
+[Music]
+        path = /mnt/media/Music
+        guest ok = Yes
+
+[Pictures]
+        path = /mnt/media/Pictures
+        guest ok = Yes
+
+[Docs]
+        path = /mnt/media/Docs
+        read only = No
+        guest ok = Yes
+
+[Software]
+        path = /mnt/media/Software
+        guest ok = Yes
+
+[eBooks]
+        path = /mnt/media/eBooks
+        guest ok = Yes
+
+
+This is pretty much a copy of my smb.conf. The basics of this file are that anyone connecting without a valid account (Bad User) maps to our media user, giving them full access. The default for shares is read-only, so we create a bunch of shares that can't be messed with (one each for Videos, Music, etc) and one hidden (non-browsable) share that's read-write. This way we can connect to our shares from anywhere without needing to give any credentials, but casual users will only have read access to our media (except for the Docs share which anyone can write to). For administration, just connect to the hidden "media" share.
+
+Now we restart samba, to see our changes:
+
+	sudo service smbd restart
+
+We should now be able to connect to our shares (if Windows insists for asking for credentials, use anything - such as username guest and no password - and save them. Linux should never ask.).
+
+
+NFS
+---
+
+We can also offer our shares out via NFS. First, install NFS:
+
+	sudo apt-get install nfs-kernel-server
+
+Next, edit the config:
+
+	sudo nano /etc/exports
+
+/mnt/media	192.168.1.0/24(rw,all_squash,anonuid=1001,anongid=1001)
+
+
+We're allowing anyone in our local network (192.168.1.0) connect to the share, giving read-write permissions and using the UID and GID of our media user (to find this out simply cat /etc/passwd)
+
+Restart NFS to make the changes take effect:
+
+	sudo service nfs-kernel-server restart
+
+Now, from a remote Unix-y server, we can add an entry to our fstab:
+
+	192.168.1.10:/mnt/media   /mnt/media      nfs     defaults,_netdev        0       0
+
+or we can mount from the command line:
+
+	sudo mount 192.168.1.10:/mnt/media /mnt/media
+
+You may need to install the NFS client first:
+
+	sudo apt-get install nfs-client
+
+
+rsync
+=====
+
+https://help.ubuntu.com/community/rsync
+
+sudo apt-get install xinetd
+
+sudo nano /etc/xinetd.d/rsync
+
+service rsync
+{
+    disable = no
+    socket_type = stream
+    wait = no
+    user = root
+    server = /usr/bin/rsync
+    server_args = --daemon --port=8765
+    log_on_failure += USERID
+}
+
+sudo nano /etc/rsyncd.conf
+
+uid = media
+gid = media
+auth users = rsync
+secrets file = /etc/rsyncd.secrets
+
+[audio]
+ comment = Music
+ path = /mnt/media/Audio/Music
+ hosts allow = 172.22.2.0/24
+ read only = no
+ list = yes
+
+[pictures]
+ comment = Pictures
+ path = /mnt/media/Pictures
+ hosts allow = 172.22.2.0/24
+ read only = yes
+ list = yes
+
+[docs]
+ comment = Documents
+ path = /mnt/media/Docs
+ hosts allow = 172.22.2.0/24
+ read only = yes
+ list = yes
+
+sudo nano /etc/default/rsync
+
+RSYNC_ENABLE=inetd
+
+sudo nano /etc/rsyncd.secrets 
+
+rsync:rs.M4tt4ndM4rk
+
+sudo chmod 600 /etc/rsyncd.secrets
+
+sudo service xinetd restart
+
+rsync rsync://172.22.2.5:8765/
+rsync rsync://home.honeychurch.org:8765/
+
+rsync -avz -e ssh remoteuser@remotehost:/remote/dir /this/dir/
+
+sudo rsync -azvv /mnt/media/Software/ /mnt/data/Software/
+
+-n for dry run:
+
+sudo rsync -azvn /mnt/media/Software/ /mnt/data/Software/
+
+sudo rsync -azvn /mnt/media/eBooks/ /mnt/data/eBooks/
+
+sudo rsync -azv --ignore-existing /mnt/media/eBooks/ /mnt/data/eBooks/
+
+sudo rsync -azv --size-only /mnt/media/eBooks/ /mnt/data/eBooks/
+
+sudo rsync --archive --compress --size-only --verbose /mnt/media/Old/Software/ /mnt/data/Software/
+sudo rsync --archive --compress --size-only --verbose /mnt/data/Software/ /mnt/media/Old/Software/
+sudo rsync --archive --compress --verbose /mnt/media/Old/Software/ /mnt/data/Software/
+sudo rsync --archive --compress --verbose /mnt/data/Software/ /mnt/media/Old/Software/
+
+sudo rsync --archive --compress --size-only --verbose /mnt/media/Old/Docs/ /mnt/data/Docs/
+sudo rsync --archive --compress --size-only --verbose /mnt/data/Docs/ /mnt/media/Old/Docs/
+sudo rsync --archive --compress --verbose /mnt/media/Old/Docs/ /mnt/data/Docs/
+sudo rsync --archive --compress --verbose /mnt/data/Docs/ /mnt/media/Old/Docs/
+
+sudo rsync --archive --compress --size-only --verbose /mnt/media/Pictures/ /mnt/data/Backup/Pictures/
+sudo rsync --archive --compress --size-only --verbose /mnt/data/Backup/Pictures/ /mnt/media/Pictures/
+sudo rsync --archive --compress --verbose /mnt/media/Pictures/ /mnt/data/Backup/Pictures/
+sudo rsync --archive --compress --verbose /mnt/data/Backup/Pictures/ /mnt/media/Pictures/
+
+sudo rsync --archive --compress --size-only --progress /mnt/media/Docs/ /mnt/data/Docs/
+
+sudo rsync --archive --compress --progress /mnt/media/eBooks/ /mnt/data/eBooks/
+
+
+
+
+
+
+
+
+
+uPNP
+----
+
+https://help.ubuntu.com/community/MediaTomb
+
+For uPNP, install MediaTomb - http://mediatomb.cc/
+
+	sudo apt-get install mediatomb
+
+To configure, visit:
+
+	https://media:49152
+
+
+uShare
+
+Coherence
+
+
+
+Jinzora
+-------
+
+Jinzora is a web-based media jukebox - good for showing off your music collection!
+
+See screenshots at: http://en.jinzora.com/screenshots/interfaces
+or, see my site (if it's up) at: http://home.honeychurch.org/music/
+
+Grab the software
+
+	wget http://iweb.dl.sourceforge.net/project/jinzora/Jinzora%202.0/Jinzora%202.8/jz280.tar.gz
+
+Decompress it
+
+	tar xzvf jz280.tar.gz
+
+Move it to the music folder in our default website
+
+	sudo mv jinzora2 /var/www/music
+
+Change ownership of all files to Apache's user/group (www-data) and change permissions to read-only/'execute if already execute' for others (as file permissions are a little bit screwy from the archive).
+	
+	sudo chown -R www-data:www-data /var/www
+	sudo chmod -R o+Xr /var/www
+
+Install some pre-requisites:
+
+	sudo apt-get install php5-gd
+
+Make some config changes:
+
+	sudo nano /etc/php5/apache2/php.ini
+
+max_execution_time = 3600
+memory_limit = 128M
+post_max_size = 32M
+upload_max_filesize = 32M
+
+
+Restart Apache to pick up the changes:
+
+	sudo service apache2 restart
+	
+Now visit the site:
+
+	http://media/music/
+	
+Choose english, Next.
+
+The next page should show all good (all green and orange, no reds), so go to the next page.
+
+Agree to the license and move on.
+
+Accept the defaults of Standalone and Streaming Only (unless you want to integrate with a CMS or play music from Jinzora out through the server's sound card) and Next.
+
+Give a password, set to View Only if you want people to be able to view the collection but not stream/download/etc (unless they have a login).
+
+Use backend type Cache (won't need a DB) and choose Slick Frontend/Style. Go for filesystem structure if you have a nice, clean directory structure. Otherwise go for tags. If both are a mess, it could be fun! Next.
+
+Next again.
+
+Browse to /mnt/media/Music and Analyze!
+
+Press Proceed to import.
+
+Your browser may get stuck for a while as things happen. I found previously that Firefox had problems and froze, so I used Opera - although now things seem fine with Firefox 3.5.
+
+Proceed, Proceed, Don't Share, Launch.
+
+If anything's gone wrong, remove the settings file and re-visit the site to re-start the install. 
+
+	sudo rm /var/www/music/settings.php
+
+If all is good, we will have a warning about our Install directory - which we need to remove:
+
+	sudo rm -R /var/www/music/install/
+
+Refresh the page to see the site.
+
+
+YAMJ
+----
+
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F9D8BC54
+	sudo nano /etc/apt/sources.list
+
+	deb http://ppa.launchpad.net/shiki/mediainfo/ubuntu karmic main
+
+	sudo apt-get update
+
+	sudo apt-get install libzen0 libmediainfo0 mediainfo unzip sun-java6-jre
+
+	mkdir yamj
+	cd yamj
+	wget http://moviejukebox.googlecode.com/files/moviejukebox_v1.6.zip
+	unzip moviejukebox_v1.6.zip
+	rm moviejukebox_v1.6.zip
+
+	mkdir mediaInfo
+	cd mediaInfo
+	ln -s /usr/bin/mediainfo .
+	cd ..
+
+	chmod +x MovieJukebox.sh
+
+Now we need to copy some config files to the root folder to point to our fanart:
+
+	cp ~/yamj/properties/moviejukebox-default.properties ~/yamj/moviejukebox.properties
+
+	sudo nano ~/yamj/
+	
+	mjb.scanner.fanartToken=-fanart
+
+	
+	
+sudo ./MovieJukebox.sh /mnt/media/Videos/Movies/ -o /var/www/movies/ -Djava.awt.headless=true
+
+To view progress:
+
+	cd ~/yamj/temp/Jukebox
+	
+	ls
+
+Once the list of jpgs has reached the end of the movie collection, use:
+
+	ls *.xml
+
+Once it has completed, visit:
+
+http://media/movies/
+
+	sudo nano /var/www/movies/Jukebox/index.html
+	
+	<meta http-equiv="refresh" content="0;url=../">
+
+
+
+
+Advanced Direct Connect
+-----------------------
+
+sudo apt-get install swig python python-dev scons build-essential libstdc++6-4.4-dev libreadline-dev libssl-dev bzr
+
+bzr branch lp:adchpp
+cd adchpp
+scons mode=release
+
+mkdir certs
+cd certs
+mkdir trusted
+sudo openssl genrsa -out privkey.pem 2048
+openssl req -new -x509 -key privkey.pem -out cacert.pem -days 1$
+sudo openssl dhparam -outform PEM -out dhparam.pem 1024
+cd ..
+
+sudo cp build/release-default/bin/adchppd /usr/bin
+sudo cp build/release-default/bin/*.so /usr/lib
+sudo mkdir /etc/adchpp/
+sudo cp etc/adchpp.xml /etc/adchpp/
+sudo cp -R certs /etc/adchpp/
+
+sudo nano /etc/adchpp/adchpp.xml
+
+<HubName type="string">Mark's Hub</HubName>
+<Description type="string">Mark's ADC Hub</Description>
+
+<Server Port="2780" TLS="1" Certificate="/etc/adchpp/certs/cacert.pem" PrivateKey="/etc/adchpp/certs/privkey.pem" TrustedPath="/etc/adchpp/certs/trusted/" DHParams="/etc/adchpp/certs/dhparam.pem"/>
+or
+<Server Port="2780"/>
+
+adchppd
+
+
+sudo apt-get install linuxdcpp
+
+
+or
+
+http://adchpp.sourceforge.net/user_guide/user_guide.html
+
+wget http://transact.dl.sourceforge.net/project/adchpp/Releases/ADCH%2B%2B%202.5/2.5.2/adchpp_2.5.2_source.tar.gz
+
+cd adchpp_2.5.2_source
+scons mode=release
+
+cd 
+mkdir build/release-default/bin/config
+mkdir build/release-default/bin/scripts
+
+cp -rf plugins/Script/examples build/release-default/bin/scripts
+cp -rf etc/ build/release-default/bin/config
+
+
+
+PXE Boot
+--------
+
+https://help.ubuntu.com/community/Installation/Netboot
+http://www.howtoforge.com/setting-up-a-pxe-install-server-on-ubuntu-9.10-p3
+
+sudo apt-get install tftpd-hpa
+
+sudo nano /etc/inetd.conf
+
+The line needs to end with:
+/mnt/media/Software/OS/tftpboot -m /etc/tftpd-hpa.rules
+
+sudo nano /etc/default/tftpd-hpa
+
+RUN_DAEMON="yes"
+OPTIONS="-l -s /mnt/media/Software/OS/tftpboot -m /etc/tftpd-hpa.rules"
+
+
+For debug, add
+
+ -vvvv
+
+to the end both the above tftpd commands and run 
+
+tail -f /var/log/daemon.log
+
+
+http://www.linuxquestions.org/questions/linux-server-73/ris-linux-its-driving-me-up-the-wall-701626/
+
+sudo nano /etc/tftpd-hpa.rules
+
+rg \\ /
+
+rg	/winxp/i386/(.*)	/winxp/I386/\U\1
+
+
+
+sudo service tftpd-hpa restart
+
+
+sudo nano /etc/apache2/sites-enabled/000-default
+
+Alias /tftpboot /mnt/media/Software/OS/tftpboot
+
+sudo service apache2 restart
+
+
+
+sudo nano /mnt/media/Software/OS/tftpboot/ubuntu-10.04-server-i386/ks.cfg
+
+install
+url --url http://172.22.2.5/tftpboot/ubuntu-10.04-server-i386/
+
+
+sudo nano /mnt/media/Software/OS/tftpboot/ubuntu-10.04-desktop-i386/ks.cfg
+
+install
+url --url http://172.22.2.5/tftpboot/ubuntu-10.04-desktop-i386/
+
+
+sudo nano /mnt/media/Software/OS/tftpboot/ubuntu-10.04-desktop-amd64/ks.cfg
+
+install
+url --url http://172.22.2.5/tftpboot/ubuntu-10.04-desktop-amd64/
+
+
+
+ks=http://172.22.2.5/tftpboot/ks.cfg
+
+
+In pfSense
+
+Enable network booting, 172.22.2.5, pxelinux.0
+TFTP Server: 172.22.2.5
+NTP Servers: Get IPs from pool.ntp.org
+102: Pacific/Auckland
+
+
+
+
+
+
+
+Ubuntu Installer:
+
+http://cdimage.ubuntu.com/netboot/
+
+sudo apt-get install lftp
+cd /mnt/media/Software/OS/tftpboot
+sudo lftp -c "open http://archive.ubuntu.com/ubuntu/dists/lucid/main/installer-amd64/current/images/netboot/; mirror" 
+sudo lftp -c "open http://archive.ubuntu.com/ubuntu/dists/lucid/main/installer-i386/current/images/netboot/; mirror" 
+
+
+VMware ESX Installer:
+
+http://www.vm-help.com/esx/esx3i/ESXi_PXE_install.html
+
+Download and extract VMware ESXi:
+
+https://www.vmware.com/download/esxi/
+
+
+
+
+
+
+MiniMyth Installer
+
+http://www.minimyth.org/
+
+Copy minimyth-0.22.0-72/html/conf/minimyth.conf to /mnt/media/Software/OS/tftpboot/conf/default/
+
+Add:
+
+MM_X_DRIVER = 'ati'
+
+MM_MASTER_SERVER = '172.22.2.11'
+MM_MASTER_DBUSERNAME = 'mythtv'
+MM_MASTER_DBPASSWORD = 'p3SG3GJz'
+MM_MASTER_DBNAME = 'mythconverg'
+
+
+MM_THEME_NAME = 'Mythbuntu'
+MM_THEMEOSD_NAME = 'BlackCurves-OSD'
+
+Ensure host has a DCHP reservation, so that it can be given a name on boot.
+
+
+
+XP:
+
+http://oss.netfarm.it/guides/
+http://www.aerospacesoftware.com/ris-howto.html
+
+mkdir /mnt/media/Software/OS/tftpboot/winxp/
+
+Use BartPe to create a copy of XP called winxp, and copy to /mnt/media/Software/OS/tftpboot/
+
+cd /mnt/media/Software/OS/tftpboot/winxp/
+sudo apt-get install cabextract
+sudo cabextract /mnt/media/Software/OS/tftpboot/winxp/I386/STARTROM.N1_
+sudo sed -i -e 's/NTLDR/XPLDR/gi' startrom.n12
+sudo mv startrom.n12 /mnt/media/Software/OS/tftpboot/winxp.0
+sudo cabextract /mnt/media/Software/OS/tftpboot/winxp/I386/SETUPLDR.EX_
+sudo sed -i -e 's/winnt\.sif/winxp\.sif/gi' setupldr.exe
+sudo sed -i -e 's/ntdetect\.com/ntdetect\.wxp/gi' setupldr.exe
+sudo mv setupldr.exe /mnt/media/Software/OS/tftpboot/XPLDR
+sudo cp /mnt/media/Software/OS/tftpboot/winxp/I386/NTDETECT.COM /mnt/media/Software/OS/tftpboot/ntdetect.wxp
+
+sudo nano /mnt/media/Software/OS/tftpboot/winxp.sif
+
+[data]
+floppyless = "1"
+msdosinitiated = "1"
+; Needed for second stage
+OriSrc = "\\172.22.2.5\Software\OS\tftpboot\winxp\I386"
+OriTyp = "4"
+LocalSourceOnCD = 1
+DisableAdminAccountOnDomainJoin = 1
+
+[SetupData]
+OsLoadOptions = "/fastdetect"
+; Needed for first stage
+SetupSourceDevice = "\Device\LanmanRedirector\172.22.2.5\Software\winxp\"
+
+[UserData]
+ComputerName = *
+; if needed
+ProductID=TFDC2-M6TGH-WBXXH-4HF6X-Y2VPT
+
+
+
+BINL (For network drivers):
+
+cd /mnt/media/Software/OS/tftpboot/winxp
+wget http://oss.netfarm.it/guides/ris-linux-0.4.tar.gz
+tar xzvf ris-linux-0.4.tar.gz
+cd ris-linux-0.4
+
+sudo cabextract /mnt/media/Software/OS/tftpboot/winxp/I386/DRIVER.CAB -d /mnt/media/Software/OS/tftpboot/winxp/I386/inf
+sudo cp /mnt/media/Software/OS/tftpboot/winxp/I386/DRVINDEX.INF /mnt/media/Software/OS/tftpboot/winxp/I386/inf/drvindex.inf
+sudo ./infparser.py /mnt/media/Software/OS/tftpboot/winxp/I386/inf
+
+sudo ./binlsrv.py
+
+
+sudo chown -R media:media /mnt/media/Software/OS/tftpboot
+
+
+
+Asterisk?:
+
+
+
+sudo nano /mnt/media/Software/OS/tftpboot/pxelinux.cfg/default
+
+
+include ubuntu-installer/i386/boot-screens/stdmenu.cfg
+
+LABEL XBMC 9.11 Live
+	KERNEL xbmc-9.11-live-repack/live/vmlinuz
+	APPEND initrd=xbmc-9.11-live-repack/live/initrd.img boot=live netboot=nfs nfsroot=172.22.2.5:/mnt/media/Software/OS/tftpboot/xbmc-9.11-live-repack vga=788 xbmc=autostart,tempfs,nodiskmount,setvolume nosplash loglevel=0 persistent quickreboot quickusbmodules notimezone noaccessibility noapparmor noaptcdrom noautologin noxautologin noconsolekeyboard nofastboot nognomepanel nohosts nokpersonalizer nolanguageselector nolocales nonetworking nopowermanagement noprogramcrashes nojockey nosudo noupdatenotifier nouser nopolkitconf noxautoconfig noxscreensaver nopreseed union=aufs -- 
+	#quiet splash
+
+LABEL XBMC 9.11 Install
+	KERNEL xbmc-9.11-live-repack/live/vmlinuz
+	APPEND initrd=xbmc-9.11-live-repack/install/initrd.gz netboot=nfs nfsroot=172.22.2.5:/mnt/media/Software/OS/tftpboot/xbmc-9.11-live-repack/install vga=normal quiet preseed/file=xbmc-9.11-live-repack/install/preseed.cfg cdrom-detect/try-usb=true priority=critical -- 
+
+
+LABEL MiniMyth RAM
+	KERNEL minimyth-0.22.0-72/kernel
+	APPEND ro root=/dev/ram0 ramdisk_size=96000 initrd=minimyth-0.22.0-72/rootfs
+
+LABEL MiniMyth NFS
+	KERNEL minimyth-0.22.0-72/kernel
+	APPEND ro root=/dev/nfs ip=dhcp nfsroot=172.22.2.5:/mnt/media/Software/OS/tftpboot/minimyth-0.22.0-72
+
+
+LABEL VMware ESX3i
+	KERNEL VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/mboot.c32
+	APPEND VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/vmkernel.gz --- VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/binmod.tgz --- VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/ienviron.tgz --- VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/cim.tgz --- VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/oem.tgz --- VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/license.tgz --- VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386/install.tgz
+
+
+LABEL Memtest86+ 4.10
+	KERNEL memtest/memtest86+-4.10
+
+LABEL Memtest86+ 2.11
+	KERNEL memtest/memtest86+-2.11
+
+LABEL Memtest86 3.5
+	KERNEL memtest/memtest86-3.5
+
+
+LABEL Ubuntu 10.04 i386 Live Desktop
+	KERNEL ubuntu-10.04-desktop-i386/casper/vmlinuz
+	APPEND initrd=ubuntu-10.04-desktop-i386/casper/initrd.lz boot=casper netboot=nfs nfsroot=172.22.2.5:/mnt/media/Software/OS/tftpboot/ubuntu-10.04-desktop-i386 -- 
+
+LABEL Ubuntu 10.04 i386 Network Installer
+	CONFIG ubuntu-installer/i386/boot-screens/menu.cfg
+
+LABEL Ubuntu 10.04 amd64 Network Installer
+	CONFIG ubuntu-installer/amd64/boot-screens/menu.cfg
+
+
+LABEL Windows XP
+    KERNEL winxp.0
+
+
+LABEL Boot From Hard Drive
+	localboot 0
+
+
+DEFAULT ubuntu-installer/i386/boot-screens/vesamenu.c32
+PROMPT 0
+TIMEOUT 0
+
+
+
+
+
+
+
+
+
+
+
+Maintenance
+===========
+
+Routine checks
+--------------
+
+sudo nano /usr/bin/xfschecks
+
+#!/bin/bash
+filesystem=/dev/md0
+
+service nfs-kernel-server stop
+service smbd stop
+
+umount $filesystem
+xfs_repair $filesystem
+
+mount $filesystem
+xfs_fsr -v $filesystem
+
+service smbd start
+service nfs-kernel-server start
+
+
+Set the file to executable:
+
+	chmod +x /usr/bin/xfschecks
+
+
+To check what would be fixed, without actually running the fix, use
+
+	xfs_repair -n /dev/md0
+
+
+MBR/GRUB boot problems
+----------------------
+
+List disks
+
+	sudo fdisk -l
+
+Find RAID disks set to bootable and FDisk them
+
+	sudo fdisk /dev/sda
+
+Remove the boot flag with:
+
+	a,1,w
+
+Use the above to add the boot flag to the boot partition, if it's not set to bootable
+
+
+Check disk MBR
+
+	sudo dd if=/dev/sda of=~/sdambr.txt bs=446 count=1
+
+A blank MBR will look like:
+
+@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^ ...
+
+Remove GRUB MBR from RAID disks that aren't blank:
+
+	sudo dd if=/dev/zero of=/dev/sda bs=446 count=1
+
+
+
+
+
+Defragmenting
+-------------
+
+For defrag of XFS, first install the required software:
+
+	sudo apt-get install xfsdump
+
+Next, check the level of fragmentation:
+
+	sudo xfs_db -r /dev/md0
+
+In the xfs_db app, run:
+
+	frag
+
+This may take a while. When it's finished, quit the app:
+
+	quit
+
+If defragmentation is required, run:
+
+	sudo xfs_fsr -v /dev/md0
+
+Do not delete the .fsr directory within the filessystem while it is being defragmented.
+
+Adding a Disk
+-------------
+
+Create a partition on the disk:
+
+	sudo fdisk /dev/sdf
+	n,p,1,Enter,Enter,t,fd,p,w
+
+Add our disk to the array. By default it'll be added as a spare:
+
+	sudo mdadm --add /dev/md0 /dev/sdf1
+
+Grow the array onto this disk:
+
+	sudo mdadm --grow /dev/md0 --raid-disks=5
+
+We can run our script to watch the restripe progress:
+
+	./mdinfo.sh
+
+Once the restripe has finished, resize the filesystem:
+
+	sudo xfs_growfs /dev/md0
+
+
+Replacing a failed disk
+-----------------------
+
+Find the failing disk
+
+	sudo dmesg | grep -i ata
+	sudo dmesg | grep -i /dev/sd
+
+	sudo fdisk -l
+
+	sudo lshw -c disk
+	
+
+Check the overall health of the disk
+
+	sudo smartctl --health /dev/sdd
+
+Run a short/long test on the disk
+
+	sudo smartctl --test=short /dev/sdd
+	sudo smartctl --test=long /dev/sdd
+
+View the test results
+
+	sudo smartctl --log=selftest /dev/sdd
+
+
+Find the failed disk by serial number:
+
+	sudo smartctl --info /dev/sdd
+
+
+
+Remove the failed disk from the array
+
+	sudo mdadm --manage /dev/md0 --fail /dev/sdg1
+	sudo mdadm --manage /dev/md0 --remove /dev/sdg1
+
+Now physically remove the old drive and add the new drive to the machine
+
+	sudo halt
+
+If the array is mounted on boot, unmount it
+
+	sudo umount /dev/md0
+
+Check that the new drive is still the same device, if not adjust the commands below as required
+
+	sudo fdisk -l
+
+Create a partition on the new disk:
+
+	sudo fdisk /dev/sdg
+	n,p,1,Enter,Enter,t,fd,p,w
+
+Add our disk to the array. The machine should start rebuilding on this disk immediately:
+
+	sudo mdadm --add /dev/md0 /dev/sdg1
+
+We can run our script to watch the rebuild progress:
+
+	mdinfo
+
+
+Forcing reassembly of an array
+------------------------------
+
+If you are having problems reassembling an array, you can use the commands below (in increasing order of scariness) to try to force the assembly. The major tip for this section is to try commands more than once, with an mdstat and an mdadm stop between each attempt. Sometimes an array will re-assemble on the 4th or 5th try.
+
+Check all disks are present and correct:
+
+	sudo fdisk -l
+
+Try to assemble the array:
+
+	sudo mdadm --assemble /dev/md0 /dev/sd[bcdefghi]1
+
+If there are problems, force the assembly:
+
+	sudo mdadm --assemble --force /dev/md0 /dev/sd[bcdefghi]1
+
+If you get weird errors, try again a few times. Before each retry, check which arrays are currently assembled:
+
+	cat /proc/mdstat
+
+Then stop any arrays that contain disks you're working with:
+
+	sudo mdadm --stop /dev/md0
+	sudo mdadm --stop /dev/md_d0
+
+Now you can repeat the assemble command.
+
+If there are problems with accessing md0, it may be that the array has already been partially assembled. In this case, stop the device:
+
+	sudo mdadm --stop /dev/md0
+
+If you get errors about a missing superblock, and the array refuses to assemble, your array may have its disk order mixed up. Check the superblock on all disks with:
+
+	sudo mdadm --examine /dev/sda1
+
+Each disk should look something like:
+
+/dev/sda1:
+
+.....
+
+      Number   Major   Minor   RaidDevice State
+this     7       8       65        7      active sync   /dev/sde1
+
+.......
+
+For each disk, look for the line starting with "this". Note the actual disk device (sda1 in this case), and not the device the disk superblock thinks it is (sde1 in this case). Also make a note of the disk Number. Make a table of this information:
+
+a 7
+b 1
+c 0
+d 2
+e 5
+f 4
+h 3
+i 6
+
+Once you have the device and number for each disk, rearrange the table in increasing number order:
+
+c 0
+b 1
+d 2
+h 3
+f 4
+e 5
+i 6
+a 7
+
+create an assemble command to assemble the disks in the correct number order, starting from 0.
+
+sudo mdadm --assemble --force /dev/md0 /dev/sd[cbdhfeia]1
+
+If any disks show up as busy, check that mdadm hasn't added them to an inpromptu array with:
+
+	cat /proc/mdstat
+
+If any arrays are listed that are using the disk in qusestion, stop them:
+
+	sudo mdadm --stop /dev/md_d0
+
+If the superblocks are screwed up enough that they're making it impossible to rebuild the array, and as long as you're sure you have the correct disk order, you can wipe the superblocks on the disks.
+
+It may be better to just recreate the array over the top of itself. This is supposed to allow you to re-write the array and keep your existing data, AS LONG AS you know the order your disks are supposed to be in (see above).
+
+sudo mdadm --create --verbose /dev/md0 --level=5 --raid-devices=8 --chunk=1024 /dev/sd[cbdhfeia]1
+
+You may want to try wiping the superblock of any disks that don't match what they're supposed to be. We can make a table of what each disk reports itself as:
+
+	sudo mdadm --examine /dev/sda1
+	sudo mdadm --examine /dev/sdb1
+
+etc...
+
+We end up with a table like:
+
+a = e
+b = b
+c = c
+d = d
+e = f
+f = g
+h = h
+i = i
+
+WARNING: This is a last resort measure, and I've never tried it!! It may be wiser to just rearrange the disks to the order they should be in! If you insist, you can run:
+
+	sudo mdadm --zero-superblock /dev/sd[aef]1
+
+Then a rebuild SHOULD work:
+
+	sudo mdadm --assemble --force /dev/md0 /dev/sd[cbdhfeia]1
+
+To rearrange the disks instead, find out which disks think they're different to what they are, and then switch them round by plugging them into the correct ports:
+
+a => e
+e => f
+f => g
+
+
+If we get problems with the array not being clean, we can write a clean status to the device:
+
+echo "echo "clean" > /sys/block/md0/md/array_state" | sudo sh
+
+
+
+
+
+
+Of course, we could be clever and create some udev rules to force the letter assignments we want. We could start by forcing our boot drive to be sda!!:
+
+	sudo nano /etc/udev/rules.d/10-local.rules
+
+KERNEL=="sdg", NAME="sda"
+KERNEL=="sda", NAME="sde"
+KERNEL=="sde", NAME="sdf"
+KERNEL=="sdf", NAME="sdg"
+
+
+
+To ensure the array is assembled on boot, once it's been assembled you can write the config to a file:
+
+	sudo mdadm --examine --scan --config=mdadm.conf >> /etc/mdadm/mdadm.conf
+
+
+
+
+
+If everything goes tits up
+--------------------------
+
+Boot with just the root disk, the failed disk and a blank disk.
+
+Find the device name of the failed by serial:
+
+	sudo smartctl --info /dev/sdd
+
+Or by contents:
+
+	sudo fdisk -l
+
+Copy the failed disk to the blank disk:
+
+	sudo apt-get install ddrescue
+
+	sudo dd_rescue -v -l ~/dd_log.txt -o ~/dd_badblocks.txt /dev/sdc /dev/sdb
+
+If you hit hard errors, or a power cut, re-start the copy backwards:
+
+	sudo dd_rescue -v -r -l ~/dd_log_reverse.txt -o ~/dd_badblocks_reverse.txt /dev/sdc /dev/sdb
+
+
+Data copy size:
+
+-b 8388608
+-b 16777216
+-b 33554432
+-b 67108864
+
+or
+
+sudo apt-get install gddrescue
+
+Run a quick recovery
+
+	sudo ddrescue -n /dev/sdb /dev/sdc ddrescue.log
+
+If there's an interruption, restart with
+
+	sudo ddrescue -n -T /dev/sdb /dev/sdc ddrescue.log
+
+Re-run over any bad areas
+
+	sudo ddrescue -d -r3 /dev/sdb /dev/sdc ddrescue.log
+
+	
+-c 65536
+
+
+dd_rhelp?
+
+
+
+
+
+To destroy an array
+-------------------
+
+DON'T DO THIS UNLESS YOU HAVE NO REQUIRED DATA ON THE ARRAY
+
+	sudo umount /dev/md0
+
+	sudo mdadm --stop /dev/md0
+
+	sudo mdadm --zero-superblock /dev/sd[bcde]1
+
+
+
+
+
+
+
+mdadm.conf
+----------
+
+
+
+sudo blkid /dev/sdx
+
+
+
+
+
+
+
+sudo nano /etc/modprobe.d/options.conf
+
+	options libata noacpi=1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+e thinks it is d
+d thinks it is c
+c thinks it is b
+b thinks it is e
+
+b needs to become e
+c needs to become b
+d needs to become c
+e needs to become d
+
+b is 4446
+c is 4025
+d is 3557
+e is 6311
+
+4446 is port 1
+4025 is port 3
+3557 is port 2
+6311 is port 4
+
+4446 needs to be plugged into port 4
+4025 needs to be plugged into port 1
+3557 needs to be plugged into port 3
+6311 needs to be plugged into port 2
+
+
+
+b is 1
+c is 0
+d is 2
+e is 7
+f is 5
+g is 4
+h is 3
+i is 6
+
+c is 0
+b is 1
+d is 2
+h is 3
+g is 4
+f is 5
+i is 6
+e is 7
+
+
+
+sudo mdadm --assemble --force /dev/md0 /dev/sd[cbdhgfie]1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Old Gentoo instructions, with LVM
+=================================
+
+Create
+------
+
+emerge samba mdadm lvm2
+
+
+
+fdisk /dev/hda
+d,n,p,1,Enter,Enter,t,fd,p,w
+
+mdadm --zero-superblock /dev/hd[aceg]1
+
+
+
+mdadm --create --verbose /dev/md0 --level=5 --raid-devices=5 --chunk=512 /dev/hd[aceg]1 missing
+
+mdadm --detail --scan > /etc/mdadm.conf
+
+
+sudo mv /etc/mdadm/mdadm.conf /etc/mdadm/mdadm.conf.old
+sudo mdadm --detail --scan > /etc/mdadm/mdadm.conf
+
+
+nano /etc/mdadm.conf
+
+DEVICE          /dev/hd[aceg]1
+ARRAY           /dev/md0 level=raid5 num-devices=5 devices=/dev/hd[aceg]1 missing
+MAILADDR        mark@honeychurch.org
+
+DEVICE          /dev/hd[acegm]1
+ARRAY           /dev/md0 level=raid5 num-devices=5 devices=/dev/hd[acegm]1
+MAILADDR        mark@honeychurch.org
+
+
+
+
+vgscan
+vgchange -a y
+
+pvcreate /dev/md0
+
+pvdisplay
+
+
+
+vgcreate -s 32M vg0 /dev/md0
+
+vgdisplay vg0
+
+
+
+vgdisplay vg0 | grep "Total PE"
+
+lvcreate -l 38155 vg0 -n lv0
+
+lvdisplay /dev/vg0/lv0
+
+
+
+mkfs.xfs -d su=512k,sw=4 /dev/vg0/lv0
+
+
+mount /dev/vg0/lv0 /raid
+
+
+
+
+sudo mount /dev/md0 /mnt/media
+
+
+
+/dev/vg0/lv0	/raid	xfs	defaults	0	0
+
+
+
+
+
+
+Add drive
+---------
+
+
+mdadm /dev/md0 -a /dev/hdm1
+
+mdadm --detail /dev/md0
+
+
+
+
+
+Rebuild
+-------
+
+mknod /dev/md0 b 9 0
+
+mdadm --assemble /dev/md0 /dev/hd[cegik]1
+
+mdadm --assemble --scan /dev/hd[cegik]1
+
+
+mdadm --detail --scan > /etc/mdadm.conf
+
+nano /etc/mdadm.conf
+
+DEVICE          /dev/hd[cegik]1
+ARRAY           /dev/md0 level=raid5 num-devices=5 devices=/dev/hd[cegik]1
+MAILADDR        mark@honeychurch.org
+
+vgscan
+vgchange -a y vg0
+
+mkdir /raid
+mount /dev/vg0/lv0 /raid
+
+
+
+
+
+
+Unmount
+-------
+
+umount /dev/vg0/lv0
+vgchange -a n vg0
+mdadm --stop /dev/md0
+
+
+
+
+
+Delete
+------
+
+umount /dev/vg0/lv0
+lvremove /dev/vg0/lv0
+
+vgchange -a n vg0
+vgremove vg0
+
